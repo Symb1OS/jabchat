@@ -15,8 +15,6 @@ public class ChatDao {
 	
 	private JdbcTemplate jdbc;
 	
-	private StringCrypter crypter;
-	
 	public ChatDao(){
 		
 		BasicDataSource ds = new BasicDataSource();
@@ -26,7 +24,6 @@ public class ChatDao {
 		ds.setPassword("PFvPiFR@");
 		
 		jdbc = new JdbcTemplate(ds);
-		crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	}
 	
 	public void insertMessage(ChatModel chatModel){

@@ -68,6 +68,7 @@ public class StartChat {
     JFrame      preFrame;
 
     public static void main(String[] args) {
+    	
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -115,6 +116,11 @@ public class StartChat {
        
     	newFrame.setVisible(false);
         preFrame = new JFrame(appName);
+        
+        Image im=Toolkit.getDefaultToolkit().getImage("resources/icons/chat.png");
+       
+        preFrame.setIconImage(im);
+        newFrame.setIconImage(im);
         
         getUserName();
         
