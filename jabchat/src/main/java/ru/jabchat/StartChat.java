@@ -51,6 +51,8 @@ public class StartChat {
 
 	private Timer reloadTimer    = new Timer(1000, new ReloadChatBox());
 	
+	private static boolean trayActive;
+	
 	private Timestamp startSession;
 	private Integer startLoginRow;
 	private Integer incMessage;
@@ -302,6 +304,7 @@ public class StartChat {
     					@Override
     					public void mousePressed(MouseEvent e) {
     						tray.remove(trayIcon);
+    						trayActive = false;
     					}
     					
     					@Override
@@ -324,8 +327,11 @@ public class StartChat {
     				trayIcon.addActionListener(actionListener);
     				trayIcon.addMouseListener(mouseListener);
     				try {
-    					tray.add(trayIcon);
-    					trayIcon.displayMessage("Новое сообщение!", "", TrayIcon.MessageType.INFO);
+    					if (!trayActive){
+    						tray.add(trayIcon);
+        					trayIcon.displayMessage("Новое сообщение!", "", TrayIcon.MessageType.INFO);
+        					trayActive = true;
+    					}
     				} catch (AWTException e) {
     					System.err.println("TrayIcon could not be added.");
     				}
