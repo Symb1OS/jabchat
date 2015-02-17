@@ -1,5 +1,6 @@
 package ru.jabchat.server;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -24,6 +25,14 @@ public class ChatDao {
 		ds.setPassword("PFvPiFR@");
 		
 		jdbc = new JdbcTemplate(ds);
+		
+		try {
+			
+			ds.close();
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void insertMessage(ChatModel chatModel){

@@ -19,14 +19,13 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -45,12 +44,6 @@ public class StartChat {
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
 	  
-	private static final String ipVasya = "10.38.190.228";
-	private static final String ipFedya = "10.38.190.227";
-	
-	private static final String nameVasya = "SymbiOS";
-	private static final String nameFedya = "Fedor";
-	
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	private ChatDao dao = new ChatDao();
 
@@ -62,13 +55,12 @@ public class StartChat {
 	private Integer incMessage;
 	private Integer currentCntRow;
 	  
-    StartChat   mainGUI;
-    JFrame      newFrame    = new JFrame(APPLICATION_NAME);
-    JButton     sendMessage;
-    JTextField  messageBox;
-    JTextArea   chatBox;
-    JTextField  usernameChooser;
-    JFrame      preFrame;
+	private JFrame      newFrame    = new JFrame(APPLICATION_NAME);
+	private JButton     sendMessage;
+	private JTextField  messageBox;
+	private JTextArea   chatBox;
+	private JTextField  usernameChooser = new JTextField(15);;
+	private JFrame      preFrame;
 
     public static void main(String[] args) {
     	
@@ -82,37 +74,10 @@ public class StartChat {
                     e.printStackTrace();
                 }
               
-                StartChat mainGUI = new StartChat();
-                mainGUI.preDisplay();
+                StartChat chat = new StartChat();
+                chat.preDisplay();
             }
         });
-    }
-    
-    
-    private void getUserName(){
-    	
-    	InetAddress ip;
-    	usernameChooser = new JTextField(15);
-    	
-			try {
-				
-				ip = InetAddress.getLocalHost();
-				
-				System.out.println(ip.toString());
-				
-				if (ip.getHostAddress().toString().equals("10.38.190.228")){
-					username = nameVasya;
-				}  else if (ip.getHostAddress().toString().equals("10.38.190.227")) {
-					username = nameFedya;
-				}else{
-					System.out.println("АНАЛИТИКА СЛАМАЛАСЬ ((((");
-				}
-				
-			
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-		
     }
     
     public void preDisplay() {
@@ -120,13 +85,14 @@ public class StartChat {
     	newFrame.setVisible(false);
         preFrame = new JFrame(APPLICATION_NAME);
         
-        Image im=Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
+        Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
        
         preFrame.setIconImage(im);
         newFrame.setIconImage(im);
         
-        getUserName();
-        
+      //  getUserName();
+      
+        JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
         enterServer.addActionListener(new enterServerButtonListener());
         JPanel prePanel = new JPanel(new GridBagLayout());
@@ -141,6 +107,8 @@ public class StartChat {
         preRight.fill = GridBagConstraints.HORIZONTAL;
         preRight.gridwidth = GridBagConstraints.REMAINDER;
 
+        prePanel.add(chooseUsernameLabel, preLeft);
+        prePanel.add(usernameChooser, preRight);
         preFrame.add(BorderLayout.CENTER, prePanel);
         preFrame.add(BorderLayout.SOUTH, enterServer);
         
@@ -261,9 +229,13 @@ public class StartChat {
     
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
+        	
+        	username = usernameChooser.getText();
+        	
         	if (username.length() < 1) {
                 System.out.println("No!");
             } else {
+            	
             	startLoginRow = dao.getLastRow();
             	incMessage = startLoginRow;
                 preFrame.setVisible(false);
