@@ -27,7 +27,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
-public class MainGUI {
+public class StartChat {
 	
 	private static final String ipVasya = "10.38.190.228";
 	private static final String ipFedya = "";
@@ -45,7 +45,7 @@ public class MainGUI {
 	private Integer currentCntRow;
 	  
     String      appName     = "Vasya&Fedya Production";
-    MainGUI     mainGUI;
+    StartChat     mainGUI;
     JFrame      newFrame    = new JFrame(appName);
     JButton     sendMessage;
     JTextField  messageBox;
@@ -64,7 +64,7 @@ public class MainGUI {
                     e.printStackTrace();
                 }
               
-                MainGUI mainGUI = new MainGUI();
+                StartChat mainGUI = new StartChat();
                 mainGUI.preDisplay();
             }
         });
