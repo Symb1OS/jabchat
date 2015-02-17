@@ -1,4 +1,4 @@
-package ru.jabchat;
+package ru.jabchat.utils;
 
 import java.io.IOException;
 import org.apache.commons.codec.binary.Base64;

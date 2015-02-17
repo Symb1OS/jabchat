@@ -1,4 +1,4 @@
-package ru.jabchat;
+package ru.jabchat.client;
 
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -35,10 +35,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
+import ru.jabchat.server.ChatDao;
+import ru.jabchat.server.ChatModel;
+import ru.jabchat.utils.StringCrypter;
+
 public class StartChat {
 
-	public static final String APPLICATION_NAME = "Vasya&Fedya Production";
-	public static final String ICON_STR = "/resources/icons/icon.jpg";
+	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
+	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
+	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
 	  
 	private static final String ipVasya = "10.38.190.228";
 	private static final String ipFedya = "10.38.190.227";
@@ -53,14 +58,12 @@ public class StartChat {
 	
 	private static boolean trayActive;
 	
-	private Timestamp startSession;
 	private Integer startLoginRow;
 	private Integer incMessage;
 	private Integer currentCntRow;
 	  
-    String      appName     = "Vasya&Fedya Production";
     StartChat   mainGUI;
-    JFrame      newFrame    = new JFrame(appName);
+    JFrame      newFrame    = new JFrame(APPLICATION_NAME);
     JButton     sendMessage;
     JTextField  messageBox;
     JTextArea   chatBox;
@@ -115,9 +118,9 @@ public class StartChat {
     public void preDisplay() {
        
     	newFrame.setVisible(false);
-        preFrame = new JFrame(appName);
+        preFrame = new JFrame(APPLICATION_NAME);
         
-        Image im=Toolkit.getDefaultToolkit().getImage("resources/icons/chat.png");
+        Image im=Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
        
         preFrame.setIconImage(im);
         newFrame.setIconImage(im);
@@ -261,7 +264,6 @@ public class StartChat {
         	if (username.length() < 1) {
                 System.out.println("No!");
             } else {
-            	startSession = new Timestamp(new Date().getTime());
             	startLoginRow = dao.getLastRow();
             	incMessage = startLoginRow;
                 preFrame.setVisible(false);
@@ -278,7 +280,7 @@ public class StartChat {
     	       final TrayIcon trayIcon;
     			if (SystemTray.isSupported()) {
     				final SystemTray tray = SystemTray.getSystemTray();
-    				Image image = Toolkit.getDefaultToolkit().getImage("resources/icons/icon.png");
+    				Image image = Toolkit.getDefaultToolkit().getImage(PREVIEW_ICON);
     				
     				ActionListener exitListener = new ActionListener() {
     					public void actionPerformed(ActionEvent e) {

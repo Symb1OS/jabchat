@@ -1,9 +1,11 @@
-package ru.jabchat;
+package ru.jabchat.server;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
+
+import ru.jabchat.utils.StringCrypter;
 
 public class ChatRowMapper implements RowMapper<ChatModel> {
 

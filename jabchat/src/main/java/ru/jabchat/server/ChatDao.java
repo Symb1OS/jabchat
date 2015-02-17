@@ -1,4 +1,4 @@
-package ru.jabchat;
+package ru.jabchat.server;
 
 import java.util.List;
 
@@ -30,6 +30,7 @@ public class ChatDao {
 		jdbc.update(INSERT,chatModel.getUserName(), chatModel.getMessage(), chatModel.getSendTime());
 	}
 	
+	@SuppressWarnings("deprecation")
 	public int getLastRow(){
 		return jdbc.queryForInt(COUNT_ROWS_LOGIN);
 	}
