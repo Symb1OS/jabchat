@@ -1,16 +1,24 @@
 package ru.jabchat;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
@@ -28,9 +36,12 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 
 public class StartChat {
-	
+
+	public static final String APPLICATION_NAME = "Vasya&Fedya Production";
+	public static final String ICON_STR = "/resources/icons/icon.jpg";
+	  
 	private static final String ipVasya = "10.38.190.228";
-	private static final String ipFedya = "";
+	private static final String ipFedya = "10.38.190.227";
 	
 	private static final String nameVasya = "SymbiOS";
 	private static final String nameFedya = "Fedor";
@@ -42,10 +53,11 @@ public class StartChat {
 	
 	private Timestamp startSession;
 	private Integer startLoginRow;
+	private Integer incMessage;
 	private Integer currentCntRow;
 	  
     String      appName     = "Vasya&Fedya Production";
-    StartChat     mainGUI;
+    StartChat   mainGUI;
     JFrame      newFrame    = new JFrame(appName);
     JButton     sendMessage;
     JTextField  messageBox;
@@ -84,7 +96,7 @@ public class StartChat {
 				
 				if (ip.getHostAddress().toString().equals("10.38.190.228")){
 					username = nameVasya;
-				}  else if (ip.getHostAddress().toString().equals("")) {
+				}  else if (ip.getHostAddress().toString().equals("10.38.190.227")) {
 					username = nameFedya;
 				}else{
 					System.out.println("АНАЛИТИКА СЛАМАЛАСЬ ((((");
@@ -194,6 +206,7 @@ public class StartChat {
             dao.insertMessage(chatModel);
             
             messageBox.setText("");
+            incMessage++;
         }
         messageBox.requestFocusInWindow();
     	
@@ -222,6 +235,13 @@ public class StartChat {
 				
 			}
 			
+			boolean needViewTray = (incMessage < currentCntRow);
+			if(needViewTray){
+				incMessage++;
+				Tray.viewTrayIcon();
+				
+			}
+			
 		}
     	
     }
@@ -230,17 +250,89 @@ public class StartChat {
     
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-            if (username.length() < 1) {
+        	if (username.length() < 1) {
                 System.out.println("No!");
             } else {
             	startSession = new Timestamp(new Date().getTime());
             	startLoginRow = dao.getLastRow();
+            	incMessage = startLoginRow;
                 preFrame.setVisible(false);
                 reloadTimer.start();
                 display();
-                
             }
         }
-
     }
-}
+    
+    
+    static class Tray{
+    	
+    	private static void viewTrayIcon() {
+    	       final TrayIcon trayIcon;
+    			if (SystemTray.isSupported()) {
+    				final SystemTray tray = SystemTray.getSystemTray();
+    				Image image = Toolkit.getDefaultToolkit().getImage("resources/icons/icon.png");
+    				
+    				ActionListener exitListener = new ActionListener() {
+    					public void actionPerformed(ActionEvent e) {
+    						System.out.println("Exiting...");
+    						System.exit(0);
+    					}
+    				};
+    				
+    				PopupMenu popup = new PopupMenu();
+    				MenuItem defaultItem = new MenuItem("Exit");
+    				defaultItem.addActionListener(exitListener);
+    				popup.add(defaultItem);
+    				trayIcon = new TrayIcon(image, "Tray Demo", popup);
+    				ActionListener actionListener = new ActionListener() {
+    					public void actionPerformed(ActionEvent e) {
+    						trayIcon.displayMessage("Action Event",
+    								"An Action Event Has Been Performed!",
+    								TrayIcon.MessageType.INFO);
+    					}
+    				};
+    				
+    				MouseListener mouseListener = new MouseListener() {
+    					
+    					@Override
+    					public void mouseReleased(MouseEvent e) {
+    						
+    					}
+    					
+    					@Override
+    					public void mousePressed(MouseEvent e) {
+    						tray.remove(trayIcon);
+    					}
+    					
+    					@Override
+    					public void mouseExited(MouseEvent e) {
+    						
+    					}
+    					
+    					@Override
+    					public void mouseEntered(MouseEvent e) {
+    						
+    					}
+    					
+    					@Override
+    					public void mouseClicked(MouseEvent e) {
+    						
+    					}
+    				};
+    					
+    				trayIcon.setImageAutoSize(true);
+    				trayIcon.addActionListener(actionListener);
+    				trayIcon.addMouseListener(mouseListener);
+    				try {
+    					tray.add(trayIcon);
+    					trayIcon.displayMessage("Новое сообщение!", "", TrayIcon.MessageType.INFO);
+    				} catch (AWTException e) {
+    					System.err.println("TrayIcon could not be added.");
+    				}
+    				
+    			} else {
+    				System.out.println("АНАЛИТИКА СЛАМАЛАСЬ((((");
+    			}
+    	      }
+    	}
+    }
