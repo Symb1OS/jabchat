@@ -146,10 +146,10 @@ public class Chat {
         mainPanel.setLayout(new BorderLayout());
 
         JPanel southPanel = new JPanel();
-        southPanel.setBackground(Color.BLUE);
+        southPanel.setBackground(Color.CYAN);
         southPanel.setLayout(new GridBagLayout());
 
-        messageBox = new JTextField(30);
+        messageBox = new JTextField(33);
         messageBox.requestFocusInWindow();
         messageBox.addKeyListener(new KeyAdapter() {
       	  public void keyPressed(KeyEvent e) {
