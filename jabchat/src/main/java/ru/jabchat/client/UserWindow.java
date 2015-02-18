@@ -15,6 +15,7 @@ public class UserWindow {
 	private JScrollPane pane;
 	private ArrayList data;
 
+	
 	public UserWindow() {
 		this.data = new ArrayList<UserModel>();
 		this.tModel = new TableModel(data);

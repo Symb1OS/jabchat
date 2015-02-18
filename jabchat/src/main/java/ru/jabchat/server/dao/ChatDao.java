@@ -13,9 +13,7 @@ import ru.jabchat.utils.Config;
 public class ChatDao {
 
 	private static final String INSERT = "INSERT INTO VBR_IFRS.CHAT(ID, NAME, MESSAGE, SEND_TIME) VALUES (DEFAULT, ?, ?, ?)";
-	
 	private static final String SELECT_ALL = "SELECT * FROM VBR_IFRS.CHAT WHERE ID > ? ORDER BY SEND_TIME";
-	
 	private static final String COUNT_ROWS_LOGIN = "SELECT MAX(ID)  as ID FROM VBR_IFRS.CHAT";
 	
 	private JdbcTemplate jdbc;
@@ -33,7 +31,7 @@ public class ChatDao {
 	}
 	
 	public void insertMessage(ChatModel chatModel){
-		jdbc.update(INSERT,chatModel.getUserName(), chatModel.getMessage(), chatModel.getSendTime());
+		jdbc.update(INSERT, chatModel.getUserName(), chatModel.getMessage(), chatModel.getSendTime());
 	}
 	
 	@SuppressWarnings("deprecation")

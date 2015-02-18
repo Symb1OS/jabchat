@@ -28,6 +28,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.print.attribute.standard.Chromaticity;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -77,6 +78,8 @@ public class Chat {
 	private JTextField  usernameChooser = new JTextField(15);;
 	private JFrame      preFrame;
 
+	
+	
     public static void main(String[] args) {
     	
         SwingUtilities.invokeLater(new Runnable() {
@@ -196,13 +199,15 @@ public class Chat {
         		 }
              }
 
+
 			public void windowClosing(WindowEvent event) {
 				chatBox.append("<" + user.getUserName()	+ "> Пользователь покинул беседу. \n");
 
 				ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + user.getUserName() + " покинул беседу."), new Timestamp(new Date().getTime()));
 				chatDao.insertMessage(chatModel);
 
-				usersDao.disconnect(user);
+				UserModel us = new UserModel(user.getId(), crypter.encrypt(user.getIp()), crypter.encrypt(user.getUserName()), crypter.encrypt(user.getStatus()));
+				usersDao.disconnect(us);
 				System.exit(0);
 			}
 			
@@ -284,11 +289,11 @@ public class Chat {
     
     public void enterChat(){
     	String userName = null;
-    	InetAddress ip;
+    	String ip 		= null;
     	try{
-    		ip 		 = InetAddress.getLocalHost();
+    		ip 		 = InetAddress.getLocalHost().getHostAddress();
     		userName = usernameChooser.getText();
-    		user = usersDao.login(ip.getHostAddress(), userName);
+    		user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName));
 		}catch(UnknownHostException e){
 			e.printStackTrace();
 		}
