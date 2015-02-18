@@ -191,7 +191,6 @@ public class Chat {
         southPanel.add(sendMessage, right);
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
-        
 
         newFrame.addWindowListener(new WindowAdapter() {        	 
         	 public void windowActivated(WindowEvent event) {
@@ -199,14 +198,19 @@ public class Chat {
         			 generalTray.remove(generalTrayIcon);
         		 }
              }
-             public void windowClosing(WindowEvent event) {
-             	chatBox.append("<" + user.getUserName() + "> Пользователь покинул беседу. \n");
 
-             	UserModel us = new UserModel(user.getId(), crypter.encrypt(user.getIp()), crypter.encrypt(user.getUserName()), crypter.encrypt(user.getStatus()));
-             	usersDao.disconnect(us);
-             	
-                System.exit(0);
-             }
+
+			public void windowClosing(WindowEvent event) {
+				chatBox.append("<" + user.getUserName()	+ "> Пользователь покинул беседу. \n");
+
+				ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + user.getUserName() + " покинул беседу."), new Timestamp(new Date().getTime()));
+				chatDao.insertMessage(chatModel);
+
+				UserModel us = new UserModel(user.getId(), crypter.encrypt(user.getIp()), crypter.encrypt(user.getUserName()), crypter.encrypt(user.getStatus()));
+				usersDao.disconnect(us);
+				System.exit(0);
+			}
+			
 		});
         
         
@@ -218,6 +222,7 @@ public class Chat {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
+        
     }
     
     private boolean offUsersExist(){
@@ -231,7 +236,7 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-            chatBox.append("<" + user.getUserName() + ">  " + messageBox.getText()  + "\n");
+            chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");
             
             ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
@@ -243,7 +248,6 @@ public class Chat {
             
             messageBox.setText("");
             incMessage++;
-            
             
         }
         messageBox.requestFocusInWindow();
@@ -299,7 +303,10 @@ public class Chat {
         preFrame.setVisible(false);
         reloadTimer.start();
         display();
-        
+       
+        ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + userName + " присоединяется к беседе."), new Timestamp(new Date().getTime()));
+		chatDao.insertMessage(chatModel);
+		
         messageBox.requestFocusInWindow();
         
     }
