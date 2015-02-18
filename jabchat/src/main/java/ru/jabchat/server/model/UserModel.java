@@ -4,12 +4,18 @@ import java.sql.Timestamp;
 
 public class UserModel {
 
-	private Integer id;
+	private int id;
 	private String ip;
 	private String userName;
-	private String Status;
+	private String status;
 	
-	public UserModel() {
+	public UserModel(){}
+	
+	public UserModel(int id, String ip, String userName, String status) {
+		this.id 		= id;
+		this.ip 		= ip;
+		this.userName 	= userName;
+		this.status 	= status;
 	}
 	
 	public Integer getId() {
@@ -31,16 +37,16 @@ public class UserModel {
 		this.userName = userName;
 	}
 	public String getStatus() {
-		return Status;
+		return status;
 	}
 	public void setStatus(String status) {
-		Status = status;
+		this.status = status;
 	}
 
 	@Override
 	public String toString() {
 		return "UserModel [id=" + id + ", ip=" + ip + ", userName=" + userName
-				+ ", Status=" + Status + "]";
+				+ ", Status=" + status + "]";
 	}
 	
 }

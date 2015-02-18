@@ -28,6 +28,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.print.attribute.standard.Chromaticity;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -58,7 +59,7 @@ public class Chat {
 	private UserDao usersDao = new UserDao();
 	
 	private UserModel  user;
-	private UserWindow userW; 
+	private UserWindow userWin = new UserWindow(); 
 
 	private Timer reloadTimer    = new Timer(1000, new ReloadChatBox());
 	
@@ -77,6 +78,8 @@ public class Chat {
 	private JTextField  usernameChooser = new JTextField(15);;
 	private JFrame      preFrame;
 
+	
+	
     public static void main(String[] args) {
     	
         SwingUtilities.invokeLater(new Runnable() {
@@ -198,16 +201,18 @@ public class Chat {
              }
              public void windowClosing(WindowEvent event) {
              	chatBox.append("<" + user.getUserName() + "> Пользователь покинул беседу. \n");
-             	usersDao.disconnect(user);
-                 System.exit(0);
-                 }
+
+             	UserModel us = new UserModel(user.getId(), crypter.encrypt(user.getIp()), crypter.encrypt(user.getUserName()), crypter.encrypt(user.getStatus()));
+             	usersDao.disconnect(us);
+             	
+                System.exit(0);
+             }
 		});
         
         
-        userW = new UserWindow(usersDao.getUsers());
 		JPanel content = new JPanel(new GridLayout(1, 0));
 		content.add(mainPanel);  
-		content.add(userW.getWindow());  
+		content.add(userWin.getWindow());  
         
         newFrame.add(content);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -257,7 +262,7 @@ public class Chat {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 		
-			userW.refreshTable();
+			userWin.refreshTable(usersDao.getUsers());
 			
 			currentCntRow = chatDao.getLastRow();
 			boolean needReload = currentCntRow > startLoginRow;
@@ -280,11 +285,11 @@ public class Chat {
     
     public void enterChat(){
     	String userName = null;
-    	InetAddress ip;
+    	String ip 		= null;
     	try{
-    		ip 		 = InetAddress.getLocalHost();
+    		ip 		 = InetAddress.getLocalHost().getHostAddress();
     		userName = usernameChooser.getText();
-    		user = usersDao.login(ip.getHostAddress(), userName);
+    		user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName));
 		}catch(UnknownHostException e){
 			e.printStackTrace();
 		}
