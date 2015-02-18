@@ -19,6 +19,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +40,7 @@ import ru.jabchat.server.ChatDao;
 import ru.jabchat.server.ChatModel;
 import ru.jabchat.utils.StringCrypter;
 
-public class StartChat {
+public class Chat {
 
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
@@ -50,6 +52,8 @@ public class StartChat {
 	private Timer reloadTimer    = new Timer(1000, new ReloadChatBox());
 	
 	private static boolean trayActive;
+	private static SystemTray generalTray;
+	private static TrayIcon generalTrayIcon;
 	
 	private Integer startLoginRow;
 	private Integer incMessage;
@@ -74,7 +78,7 @@ public class StartChat {
                     e.printStackTrace();
                 }
               
-                StartChat chat = new StartChat();
+                Chat chat = new Chat();
                 chat.preDisplay();
             }
         });
@@ -173,7 +177,17 @@ public class StartChat {
         southPanel.add(sendMessage, right);
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
-
+        
+        newFrame.addWindowListener(new WindowAdapter() {
+        	 
+        	 public void windowActivated(WindowEvent event) {
+        		 if (trayActive){
+        			 generalTray.remove(generalTrayIcon);
+        		 }
+             }
+        	 
+		});
+        
         newFrame.add(mainPanel);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
@@ -255,8 +269,8 @@ public class StartChat {
     
     static class Tray{
     	
-    	private static void viewTrayIcon() {
-    	       final TrayIcon trayIcon;
+		private static void viewTrayIcon() {
+    		    final TrayIcon trayIcon;
     			if (SystemTray.isSupported()) {
     				final SystemTray tray = SystemTray.getSystemTray();
     				Image image = Toolkit.getDefaultToolkit().getImage(PREVIEW_ICON);
@@ -316,8 +330,11 @@ public class StartChat {
     				try {
     					if (!trayActive){
     						tray.add(trayIcon);
+    						generalTray = tray;
+    						generalTrayIcon = trayIcon;
         					trayIcon.displayMessage("Новое сообщение!", "", TrayIcon.MessageType.INFO);
         					trayActive = true;
+        					
     					}
     				} catch (AWTException e) {
     					System.err.println("TrayIcon could not be added.");
@@ -327,5 +344,6 @@ public class StartChat {
     				System.out.println("АНАЛИТИКА СЛАМАЛАСЬ((((");
     			}
     	      }
+		
     	}
     }
