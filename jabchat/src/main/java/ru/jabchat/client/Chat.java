@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MenuItem;
@@ -21,6 +22,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -36,8 +39,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
-import ru.jabchat.server.ChatDao;
-import ru.jabchat.server.ChatModel;
+import ru.jabchat.server.dao.ChatDao;
+import ru.jabchat.server.dao.UserDao;
+import ru.jabchat.server.model.ChatModel;
+import ru.jabchat.server.model.UserModel;
 import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
@@ -66,6 +71,13 @@ public class Chat {
 	private JTextField  usernameChooser = new JTextField(15);;
 	private JFrame      preFrame;
 
+	
+	// - Users - 
+	private UserDao users = new UserDao();
+	private UserModel user;
+	private UserWindow userW; 
+	
+	
     public static void main(String[] args) {
     	
         SwingUtilities.invokeLater(new Runnable() {
@@ -178,22 +190,51 @@ public class Chat {
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
         
-        newFrame.addWindowListener(new WindowAdapter() {
-        	 
+
+        newFrame.addWindowListener(new WindowAdapter() {        	 
         	 public void windowActivated(WindowEvent event) {
         		 if (trayActive){
         			 generalTray.remove(generalTrayIcon);
         		 }
              }
-        	 
+             public void windowClosing(WindowEvent event) {
+             	chatBox.append("<" + user.getUserName() + "> Пользователь покинул беседу. \n");
+             	users.disconnect(user);
+                 System.exit(0);
+                 }
 		});
         
-        newFrame.add(mainPanel);
+        
+        userW = new UserWindow(users.getUsers());
+		JPanel content = new JPanel(new GridLayout(1, 0));
+		content.add(mainPanel);  
+		content.add(userW.getWindow());  
+        
+        newFrame.add(content);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
     }
 
+    
+//    private void sendMessage(){
+//
+//        if (messageBox.getText().length() < 1) {
+//        } else if (messageBox.getText().equals(".clear")) {
+//            chatBox.setText("Cleared all messages\n");
+//            messageBox.setText("");
+//        } else {
+//            chatBox.append("<" + username + ">:  " + messageBox.getText()  + "\n");
+//            
+//            ChatModel chatModel = new ChatModel(crypter.encrypt(username), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
+//            dao.insertMessage(chatModel);
+//            
+//            messageBox.setText("");
+//            incMessage++;
+//        }
+//        messageBox.requestFocusInWindow();
+//    	
+//    }
     
     private void sendMessage(){
 
@@ -202,9 +243,9 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-            chatBox.append("<" + username + ">:  " + messageBox.getText()  + "\n");
+            chatBox.append("<" + user.getUserName() + ">  " + messageBox.getText()  + "\n");
             
-            ChatModel chatModel = new ChatModel(crypter.encrypt(username), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
+            ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             dao.insertMessage(chatModel);
             
             messageBox.setText("");
@@ -213,6 +254,7 @@ public class Chat {
         messageBox.requestFocusInWindow();
     	
     }
+    
     class sendMessageButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
         	sendMessage();
@@ -245,21 +287,25 @@ public class Chat {
     }
     
     public void enterChat(){
-    	username = usernameChooser.getText();
+    	String userName = null;
+    	InetAddress ip;
+    	try{
+    		ip 		 = InetAddress.getLocalHost();
+    		userName = usernameChooser.getText();
+    		user = users.login(ip.getHostAddress(), userName);
+		}catch(UnknownHostException e){
+			e.printStackTrace();
+		}
     	
-    	if (username.length() < 1) {
-            System.out.println("No!");
-        } else {
-        	startLoginRow = dao.getLastRow();
-        	incMessage = startLoginRow;
-            preFrame.setVisible(false);
-            reloadTimer.start();
-            display();
-            
-            messageBox.requestFocusInWindow();
-        }
+    	startLoginRow = dao.getLastRow();
+    	incMessage = startLoginRow;
+        preFrame.setVisible(false);
+        reloadTimer.start();
+        display();
+        
+        messageBox.requestFocusInWindow();
+        
     }
-    String  username;
     
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {

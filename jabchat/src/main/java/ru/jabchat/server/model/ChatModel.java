@@ -1,4 +1,4 @@
-package ru.jabchat.server;
+package ru.jabchat.server.model;
 
 import java.sql.Timestamp;
 

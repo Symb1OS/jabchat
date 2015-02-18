@@ -1,10 +1,13 @@
-package ru.jabchat.server;
+package ru.jabchat.server.dao;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import ru.jabchat.server.mapper.ChatRowMapper;
+import ru.jabchat.server.model.ChatModel;
 
 public class ChatDao {
 
