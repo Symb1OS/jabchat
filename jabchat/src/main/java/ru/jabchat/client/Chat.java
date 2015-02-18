@@ -196,6 +196,7 @@ public class Chat {
         	 public void windowActivated(WindowEvent event) {
         		 if (trayActive){
         			 generalTray.remove(generalTrayIcon);
+        			 trayActive = false;
         		 }
              }
 
