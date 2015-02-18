@@ -90,11 +90,10 @@ public class StartChat {
         preFrame.setIconImage(im);
         newFrame.setIconImage(im);
         
-      //  getUserName();
-      
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
         enterServer.addActionListener(new enterServerButtonListener());
+        
         JPanel prePanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints preRight = new GridBagConstraints();
@@ -106,7 +105,17 @@ public class StartChat {
 
         preRight.fill = GridBagConstraints.HORIZONTAL;
         preRight.gridwidth = GridBagConstraints.REMAINDER;
-
+        
+        usernameChooser.addKeyListener(new KeyAdapter() {
+        	  public void keyPressed(KeyEvent e) {
+        		  int keyPressed = e.getKeyCode();
+        		  boolean isEnter = keyPressed == 10;
+        		  if (isEnter){
+        			enterChat();
+        		  }
+        	    }
+  		});
+        
         prePanel.add(chooseUsernameLabel, preLeft);
         prePanel.add(usernameChooser, preRight);
         preFrame.add(BorderLayout.CENTER, prePanel);
@@ -206,45 +215,41 @@ public class StartChat {
 			boolean needReload = currentCntRow > startLoginRow;
 			if (needReload){
 				chatBox.setText("");
-				
 				List<ChatModel> messages = dao.getListMessages(startLoginRow);
 				for (ChatModel chatModel : messages) {
 					chatBox.append("<" + chatModel.getUserName() + ">:  " + chatModel.getMessage()  + "\n");
 				}
 				
 			}
-			
 			boolean needViewTray = (incMessage < currentCntRow);
 			if(needViewTray){
 				incMessage++;
 				Tray.viewTrayIcon();
 				
 			}
-			
 		}
-    	
     }
     
+    public void enterChat(){
+    	username = usernameChooser.getText();
+    	
+    	if (username.length() < 1) {
+            System.out.println("No!");
+        } else {
+        	startLoginRow = dao.getLastRow();
+        	incMessage = startLoginRow;
+            preFrame.setVisible(false);
+            reloadTimer.start();
+            display();
+        }
+    }
     String  username;
     
     class enterServerButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent event) {
-        	
-        	username = usernameChooser.getText();
-        	
-        	if (username.length() < 1) {
-                System.out.println("No!");
-            } else {
-            	
-            	startLoginRow = dao.getLastRow();
-            	incMessage = startLoginRow;
-                preFrame.setVisible(false);
-                reloadTimer.start();
-                display();
-            }
+        	enterChat();
         }
     }
-    
     
     static class Tray{
     	
