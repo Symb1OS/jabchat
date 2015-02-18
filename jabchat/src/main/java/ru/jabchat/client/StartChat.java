@@ -241,6 +241,8 @@ public class StartChat {
             preFrame.setVisible(false);
             reloadTimer.start();
             display();
+            
+            messageBox.requestFocusInWindow();
         }
     }
     String  username;
