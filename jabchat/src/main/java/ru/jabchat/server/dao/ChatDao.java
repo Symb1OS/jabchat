@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.jabchat.server.mapper.ChatRowMapper;
 import ru.jabchat.server.model.ChatModel;
+import ru.jabchat.utils.Config;
 
 public class ChatDao {
 
@@ -21,18 +22,11 @@ public class ChatDao {
 	
 	public ChatDao(){
 		
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName("com.ibm.db2.jcc.DB2Driver");
-		ds.setUrl("jdbc:db2://10.42.222.68:50000/FINANZ");
-		ds.setUsername("srv_abx");
-		ds.setPassword("PFvPiFR@");
-		
-		jdbc = new JdbcTemplate(ds);
+		BasicDataSource dataSource = Config.getDataSource();
+		jdbc = new JdbcTemplate(dataSource);
 		
 		try {
-			
-			ds.close();
-		
+			dataSource.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

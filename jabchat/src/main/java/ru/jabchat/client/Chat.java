@@ -43,6 +43,7 @@ import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
+import ru.jabchat.utils.Notification;
 import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
@@ -52,7 +53,12 @@ public class Chat {
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
 	  
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
-	private ChatDao dao = new ChatDao();
+	
+	private ChatDao chatDao = new ChatDao();
+	private UserDao usersDao = new UserDao();
+	
+	private UserModel  user;
+	private UserWindow userW; 
 
 	private Timer reloadTimer    = new Timer(1000, new ReloadChatBox());
 	
@@ -71,13 +77,6 @@ public class Chat {
 	private JTextField  usernameChooser = new JTextField(15);;
 	private JFrame      preFrame;
 
-	
-	// - Users - 
-	private UserDao users = new UserDao();
-	private UserModel user;
-	private UserWindow userW; 
-	
-	
     public static void main(String[] args) {
     	
         SwingUtilities.invokeLater(new Runnable() {
@@ -199,13 +198,13 @@ public class Chat {
              }
              public void windowClosing(WindowEvent event) {
              	chatBox.append("<" + user.getUserName() + "> Пользователь покинул беседу. \n");
-             	users.disconnect(user);
+             	usersDao.disconnect(user);
                  System.exit(0);
                  }
 		});
         
         
-        userW = new UserWindow(users.getUsers());
+        userW = new UserWindow(usersDao.getUsers());
 		JPanel content = new JPanel(new GridLayout(1, 0));
 		content.add(mainPanel);  
 		content.add(userW.getWindow());  
@@ -214,6 +213,10 @@ public class Chat {
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
+    }
+    
+    private boolean offUsersExist(){
+    	return usersDao.offExists();
     }
     
     private void sendMessage(){
@@ -226,10 +229,17 @@ public class Chat {
             chatBox.append("<" + user.getUserName() + ">  " + messageBox.getText()  + "\n");
             
             ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
-            dao.insertMessage(chatModel);
+            chatDao.insertMessage(chatModel);
+            
+            if (offUsersExist()){
+            	Notification notification = new Notification(user.getUserName(), messageBox.getText());
+            	notification.sendMail();
+            }
             
             messageBox.setText("");
             incMessage++;
+            
+            
         }
         messageBox.requestFocusInWindow();
     	
@@ -247,11 +257,13 @@ public class Chat {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 		
-			currentCntRow = dao.getLastRow();
+			userW.refreshTable();
+			
+			currentCntRow = chatDao.getLastRow();
 			boolean needReload = currentCntRow > startLoginRow;
 			if (needReload){
 				chatBox.setText("");
-				List<ChatModel> messages = dao.getListMessages(startLoginRow);
+				List<ChatModel> messages = chatDao.getListMessages(startLoginRow);
 				for (ChatModel chatModel : messages) {
 					chatBox.append("<" + chatModel.getUserName() + ">:  " + chatModel.getMessage()  + "\n");
 				}
@@ -272,12 +284,12 @@ public class Chat {
     	try{
     		ip 		 = InetAddress.getLocalHost();
     		userName = usernameChooser.getText();
-    		user = users.login(ip.getHostAddress(), userName);
+    		user = usersDao.login(ip.getHostAddress(), userName);
 		}catch(UnknownHostException e){
 			e.printStackTrace();
 		}
     	
-    	startLoginRow = dao.getLastRow();
+    	startLoginRow = chatDao.getLastRow();
     	incMessage = startLoginRow;
         preFrame.setVisible(false);
         reloadTimer.start();

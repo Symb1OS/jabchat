@@ -39,9 +39,8 @@ public class UserModel {
 
 	@Override
 	public String toString() {
-		return "UserModel [id=" + id + ", userName=" + userName + ", Status="
-				+ Status + "]";
+		return "UserModel [id=" + id + ", ip=" + ip + ", userName=" + userName
+				+ ", Status=" + Status + "]";
 	}
-	
 	
 }

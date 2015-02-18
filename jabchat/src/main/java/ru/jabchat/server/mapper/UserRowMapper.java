@@ -5,9 +5,7 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
-import ru.jabchat.utils.StringCrypter;
 
 public class UserRowMapper implements RowMapper<UserModel> {
 
