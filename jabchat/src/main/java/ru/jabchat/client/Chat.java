@@ -215,26 +215,6 @@ public class Chat {
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
     }
-
-    
-//    private void sendMessage(){
-//
-//        if (messageBox.getText().length() < 1) {
-//        } else if (messageBox.getText().equals(".clear")) {
-//            chatBox.setText("Cleared all messages\n");
-//            messageBox.setText("");
-//        } else {
-//            chatBox.append("<" + username + ">:  " + messageBox.getText()  + "\n");
-//            
-//            ChatModel chatModel = new ChatModel(crypter.encrypt(username), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
-//            dao.insertMessage(chatModel);
-//            
-//            messageBox.setText("");
-//            incMessage++;
-//        }
-//        messageBox.requestFocusInWindow();
-//    	
-//    }
     
     private void sendMessage(){
 
