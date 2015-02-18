@@ -58,7 +58,7 @@ public class Chat {
 	private UserDao usersDao = new UserDao();
 	
 	private UserModel  user;
-	private UserWindow userW; 
+	private UserWindow userWin = new UserWindow(); 
 
 	private Timer reloadTimer    = new Timer(1000, new ReloadChatBox());
 	
@@ -188,7 +188,6 @@ public class Chat {
         southPanel.add(sendMessage, right);
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
-        
 
         newFrame.addWindowListener(new WindowAdapter() {        	 
         	 public void windowActivated(WindowEvent event) {
@@ -196,23 +195,29 @@ public class Chat {
         			 generalTray.remove(generalTrayIcon);
         		 }
              }
-             public void windowClosing(WindowEvent event) {
-             	chatBox.append("<" + user.getUserName() + "> Пользователь покинул беседу. \n");
-             	usersDao.disconnect(user);
-                 System.exit(0);
-                 }
+
+			public void windowClosing(WindowEvent event) {
+				chatBox.append("<" + user.getUserName()	+ "> Пользователь покинул беседу. \n");
+
+				ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + user.getUserName() + " покинул беседу."), new Timestamp(new Date().getTime()));
+				chatDao.insertMessage(chatModel);
+
+				usersDao.disconnect(user);
+				System.exit(0);
+			}
+			
 		});
         
         
-        userW = new UserWindow(usersDao.getUsers());
 		JPanel content = new JPanel(new GridLayout(1, 0));
 		content.add(mainPanel);  
-		content.add(userW.getWindow());  
+		content.add(userWin.getWindow());  
         
         newFrame.add(content);
         newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         newFrame.setSize(470, 300);
         newFrame.setVisible(true);
+        
     }
     
     private boolean offUsersExist(){
@@ -226,7 +231,7 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-            chatBox.append("<" + user.getUserName() + ">  " + messageBox.getText()  + "\n");
+            chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");
             
             ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
@@ -238,7 +243,6 @@ public class Chat {
             
             messageBox.setText("");
             incMessage++;
-            
             
         }
         messageBox.requestFocusInWindow();
@@ -257,7 +261,7 @@ public class Chat {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 		
-			userW.refreshTable();
+			userWin.refreshTable(usersDao.getUsers());
 			
 			currentCntRow = chatDao.getLastRow();
 			boolean needReload = currentCntRow > startLoginRow;
@@ -294,7 +298,10 @@ public class Chat {
         preFrame.setVisible(false);
         reloadTimer.start();
         display();
-        
+       
+        ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + userName + " присоединяется к беседе."), new Timestamp(new Date().getTime()));
+		chatDao.insertMessage(chatModel);
+		
         messageBox.requestFocusInWindow();
         
     }
