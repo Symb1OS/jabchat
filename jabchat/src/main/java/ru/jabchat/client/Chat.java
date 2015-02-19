@@ -50,6 +50,8 @@ import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
 import ru.jabchat.utils.Notification;
+import ru.jabchat.utils.Settings;
+import ru.jabchat.utils.SettingsFile;
 import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
@@ -82,8 +84,8 @@ public class Chat {
 	private JButton     sendMessage;
 	
 	private JButton changeColor;
-	private Color userColor = Color.BLUE;
-	private Color interlocutor = Color.BLACK;
+	private Color userColor;
+	private Color interlocutorColor;
 	
 	private JTextField  messageBox;
 	private JTextPane chatBox;
@@ -97,6 +99,8 @@ public class Chat {
 	public DefaultStyledDocument doc;
 	public JTextPane textPane;
 	public JScrollPane scrollPane;
+	
+	private Settings settings;
 
     private Style getStyle(String user){
 	
@@ -128,7 +132,9 @@ public class Chat {
     }
     
     public void preDisplay() {
-       
+    	
+    	settings = new Settings();
+    	
     	chatFrame.setVisible(false);
         loginFrame = new JFrame(APPLICATION_NAME);
         
@@ -144,30 +150,16 @@ public class Chat {
             public void mouseClicked(MouseEvent e) {
             	 if (e.getButton() == MouseEvent.BUTTON1){
             		 userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
-     				if (userColor == null){
-     					userColor = Color.BLUE;
-     				}
+            		 settings.setMyColor(userColor);
+            		 
                  }else if(e.getButton() == MouseEvent.BUTTON3){
-                	 interlocutor = JColorChooser.showDialog(loginFrame, "Цвет текста собеседника", userColor);
-     				if (interlocutor == null){
-     					interlocutor = Color.BLACK;
-     				}
+                	 interlocutorColor = JColorChooser.showDialog(loginFrame, "Цвет текста собеседника", userColor);
+                	 settings.setOtherColor(interlocutorColor);
                  }
                
               }
           });
 
-        
-        changeColor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				userColor = JColorChooser.showDialog(loginFrame, "Choose a color", userColor);
-				if (userColor == null){
-					userColor = Color.BLUE;
-				}
-
-			}
-		});
-        
         enterServer.addActionListener(new enterServerButtonListener());
         
         JPanel prePanel = new JPanel(new GridBagLayout());
@@ -219,7 +211,7 @@ public class Chat {
         this.secondStyle = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(secondStyle, "Serif");
         StyleConstants.setFontSize(secondStyle, 15);
-        StyleConstants.setForeground(secondStyle, interlocutor);
+        StyleConstants.setForeground(secondStyle, interlocutorColor);
         // - green - 
         this.system = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(system, "Serif");
@@ -324,9 +316,8 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-         //   chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");
-            
-            ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
+
+        	ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
             
             if (offUsersExist()){
@@ -386,6 +377,16 @@ public class Chat {
     }
     
     public void enterChat(){
+    	
+    	if(settings.isNull()){
+    		settings = SettingsFile.read();
+    	}else{
+    		SettingsFile.write(settings);
+    	}
+    	
+    	userColor = settings.getMyColor();
+    	interlocutorColor = settings.getOtherColor();
+    	
     	String ip 	 = null;
     	String userName = null;
     	try{
