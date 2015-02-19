@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -81,7 +82,8 @@ public class Chat {
 	private JButton     sendMessage;
 	
 	private JButton changeColor;
-	private Color userColor = Color.BLACK;
+	private Color userColor = Color.BLUE;
+	private Color interlocutor = Color.BLACK;
 	
 	private JTextField  messageBox;
 	private JTextPane chatBox;
@@ -138,6 +140,24 @@ public class Chat {
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
         changeColor = new JButton("Choose user color");
+        changeColor.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+            	 if (e.getButton() == MouseEvent.BUTTON1){
+            		 userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
+     				if (userColor == null){
+     					userColor = Color.BLUE;
+     				}
+                 }else if(e.getButton() == MouseEvent.BUTTON3){
+                	 interlocutor = JColorChooser.showDialog(loginFrame, "Цвет текста собеседника", userColor);
+     				if (interlocutor == null){
+     					interlocutor = Color.BLACK;
+     				}
+                 }
+               
+              }
+          });
+
+        
         changeColor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userColor = JColorChooser.showDialog(loginFrame, "Choose a color", userColor);
@@ -199,12 +219,12 @@ public class Chat {
         this.secondStyle = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(secondStyle, "Serif");
         StyleConstants.setFontSize(secondStyle, 15);
-        StyleConstants.setForeground(secondStyle, Color.BLACK);
+        StyleConstants.setForeground(secondStyle, interlocutor);
         // - green - 
         this.system = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(system, "Serif");
         StyleConstants.setFontSize(system, 15);
-        StyleConstants.setForeground(system, Color.GREEN);
+        StyleConstants.setForeground(system, new Color(0,112,15));
         
         // -- Create elements --
         this.doc = new DefaultStyledDocument(sc);
