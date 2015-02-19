@@ -51,7 +51,6 @@ public class Notification {
 				email.setSmtpPort(25);
 				email.setAuthentication("test123", "passwordqqq");
 				email.addTo(eMail, "");
-				//email.setFrom("Claims@vwfs.com");
 				email.setFrom("Vasily.Litvinenko@vwfs.com");
 				email.setSubject("У вас новое сообщение от " + fromUser);
 				email.setMsg("Содержание сообщения: " + "\n" + message);

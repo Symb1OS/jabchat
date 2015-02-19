@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class SettingsFile {
+public class ObjectRecorder {
 	
 	public static final String PATH = "resources/";
 	

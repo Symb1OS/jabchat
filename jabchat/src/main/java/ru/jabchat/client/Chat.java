@@ -51,7 +51,7 @@ import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
 import ru.jabchat.utils.Notification;
 import ru.jabchat.utils.Settings;
-import ru.jabchat.utils.SettingsFile;
+import ru.jabchat.utils.ObjectRecorder;
 import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
@@ -379,9 +379,9 @@ public class Chat {
     public void enterChat(){
     	
     	if(settings.isNull()){
-    		settings = SettingsFile.read();
+    		settings = ObjectRecorder.read();
     	}else{
-    		SettingsFile.write(settings);
+    		ObjectRecorder.write(settings);
     	}
     	
     	userColor = settings.getMyColor();
