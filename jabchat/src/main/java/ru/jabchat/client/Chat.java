@@ -26,19 +26,24 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
+import java.util.Random;
 
-import javax.print.attribute.standard.Chromaticity;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
@@ -52,7 +57,7 @@ public class Chat {
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
-	  
+	
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	
 	private ChatDao chatDao = new ChatDao();
@@ -67,19 +72,42 @@ public class Chat {
 	private static SystemTray generalTray;
 	private static TrayIcon generalTrayIcon;
 	
+	private Integer rowCount;
 	private Integer startLoginRow;
 	private Integer incMessage;
 	private Integer currentCntRow;
 	  
-	private JFrame      newFrame    = new JFrame(APPLICATION_NAME);
+	private static JFrame      chatFrame    = new JFrame(APPLICATION_NAME);
+	private JFrame      loginFrame;
 	private JButton     sendMessage;
+	
+	private JButton changeColor;
+	private Color color = Color.BLACK;
+	
 	private JTextField  messageBox;
-	private JTextArea   chatBox;
-	private JTextField  usernameChooser = new JTextField(15);;
-	private JFrame      preFrame;
+	private JTextPane chatBox;
+	private JTextField usernameChooser = new JTextField(15);
 
+	private StyleContext sc;
+	private Style secondStyle;
+	private Style firstStyle;
+	private Style system;
+
+	public DefaultStyledDocument doc;
+	public JTextPane textPane;
+	public JScrollPane scrollPane;
+
+    private Style getStyle(String user){
 	
-	
+    	if ("Система".equals(user)){
+    			return system;
+    	}else if (user.equals(this.user.getUserName())) {
+			return firstStyle;
+		}else {
+			return secondStyle;
+		}
+    }
+
     public static void main(String[] args) {
     	
         SwingUtilities.invokeLater(new Runnable() {
@@ -100,16 +128,28 @@ public class Chat {
     
     public void preDisplay() {
        
-    	newFrame.setVisible(false);
-        preFrame = new JFrame(APPLICATION_NAME);
+    	chatFrame.setVisible(false);
+        loginFrame = new JFrame(APPLICATION_NAME);
         
         Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
        
-        preFrame.setIconImage(im);
-        newFrame.setIconImage(im);
+        loginFrame.setIconImage(im);
+        chatFrame.setIconImage(im);
         
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
+        changeColor = new JButton("Change Color");
+        changeColor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				color = JColorChooser.showDialog(loginFrame, "Choose a color", color);
+
+				if (color == null){
+					color = Color.BLACK;
+				}
+
+			}
+		});
+        
         enterServer.addActionListener(new enterServerButtonListener());
         
         JPanel prePanel = new JPanel(new GridBagLayout());
@@ -117,10 +157,11 @@ public class Chat {
         GridBagConstraints preRight = new GridBagConstraints();
         preRight.insets = new Insets(0, 0, 0, 10);
         preRight.anchor = GridBagConstraints.EAST;
+        
         GridBagConstraints preLeft = new GridBagConstraints();
         preLeft.anchor = GridBagConstraints.WEST;
-        preLeft.insets = new Insets(0, 10, 0, 10);
-
+        preLeft.insets = new Insets(0, 0, 0, 10);
+        
         preRight.fill = GridBagConstraints.HORIZONTAL;
         preRight.gridwidth = GridBagConstraints.REMAINDER;
         
@@ -136,15 +177,39 @@ public class Chat {
         
         prePanel.add(chooseUsernameLabel, preLeft);
         prePanel.add(usernameChooser, preRight);
-        preFrame.add(BorderLayout.CENTER, prePanel);
-        preFrame.add(BorderLayout.SOUTH, enterServer);
         
-        preFrame.setSize(300, 300);
-        preFrame.setVisible(true);
+        loginFrame.add(BorderLayout.NORTH, changeColor);
+        loginFrame.add(BorderLayout.CENTER, prePanel);
+        loginFrame.add(BorderLayout.SOUTH, enterServer);
+        
+        loginFrame.setSize(300, 300);
+        loginFrame.setVisible(true);
 
     }
 
     public void display() {
+    	
+    	rowCount = currentCntRow = chatDao.getLastRow();
+      
+    	this.sc = new StyleContext();
+
+        this.firstStyle = sc.addStyle("ConstantWidth", null);
+        StyleConstants.setFontFamily(firstStyle, "Serif");
+        StyleConstants.setFontSize(firstStyle, 15);
+        StyleConstants.setForeground(firstStyle, Color.BLUE);
+        // - red - 
+        this.secondStyle = sc.addStyle("ConstantWidth", null);
+        StyleConstants.setFontFamily(secondStyle, "Serif");
+        StyleConstants.setFontSize(secondStyle, 15);
+        StyleConstants.setForeground(secondStyle, Color.BLACK);
+        // - green - 
+        this.system = sc.addStyle("ConstantWidth", null);
+        StyleConstants.setFontFamily(system, "Serif");
+        StyleConstants.setFontSize(system, 15);
+        StyleConstants.setForeground(system, Color.GREEN);
+        
+        // -- Create elements --
+        this.doc = new DefaultStyledDocument(sc);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
@@ -167,10 +232,15 @@ public class Chat {
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(new sendMessageButtonListener());
 
-        chatBox = new JTextArea();
+        this.textPane = new JTextPane(doc);
+        this.textPane.setBackground(Color.WHITE);
+        this.scrollPane = new JScrollPane(textPane);   
+        
+        chatBox = new JTextPane(doc);
+        
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
-        chatBox.setLineWrap(true);
+      // chatBox.setLineWrap(true);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -192,7 +262,7 @@ public class Chat {
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
-        newFrame.addWindowListener(new WindowAdapter() {        	 
+        chatFrame.addWindowListener(new WindowAdapter() {        	 
         	 public void windowActivated(WindowEvent event) {
         		 if (trayActive){
         			 generalTray.remove(generalTrayIcon);
@@ -202,11 +272,10 @@ public class Chat {
 
 
 			public void windowClosing(WindowEvent event) {
-				chatBox.append("<" + user.getUserName()	+ "> Пользователь покинул беседу. \n");
 
 				ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + user.getUserName() + " покинул беседу."), new Timestamp(new Date().getTime()));
 				chatDao.insertMessage(chatModel);
-
+				
 				UserModel us = new UserModel(user.getId(), crypter.encrypt(user.getIp()), crypter.encrypt(user.getUserName()), crypter.encrypt(user.getStatus()));
 				usersDao.disconnect(us);
 				System.exit(0);
@@ -219,10 +288,10 @@ public class Chat {
 		content.add(mainPanel);  
 		content.add(userWin.getWindow());  
         
-        newFrame.add(content);
-        newFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        newFrame.setSize(470, 300);
-        newFrame.setVisible(true);
+        chatFrame.add(content);
+        chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        chatFrame.setSize(470, 300);
+        chatFrame.setVisible(true);
         
     }
     
@@ -237,7 +306,7 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-            chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");
+         //   chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");
             
             ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
@@ -266,31 +335,41 @@ public class Chat {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-		
-			userWin.refreshTable(usersDao.getUsers());
 			
+			userWin.refreshTable(usersDao.getUsers());
 			currentCntRow = chatDao.getLastRow();
-			boolean needReload = currentCntRow > startLoginRow;
-			if (needReload){
-				chatBox.setText("");
-				List<ChatModel> messages = chatDao.getListMessages(startLoginRow);
-				for (ChatModel chatModel : messages) {
-					chatBox.append("<" + chatModel.getUserName() + ">:  " + chatModel.getMessage()  + "\n");
-				}
+			
+			boolean needUpdate = currentCntRow - rowCount > 0;
+			if (needUpdate) {
 				
+				for (int i = currentCntRow - rowCount; i >= 0; i--) {
+					
+					ChatModel chatModel = chatDao.getMessage(i);
+					
+					try {
+						doc.insertString(doc.getLength(), "<" + chatModel.getUserName() + ">:  " + chatModel.getMessage() + "\n", getStyle(chatModel.getUserName()));
+					} catch (BadLocationException badLocationException) {
+						badLocationException.printStackTrace();
+					}
+
+				}
 			}
+
 			boolean needViewTray = (incMessage < currentCntRow);
-			if(needViewTray){
+			if (needViewTray) {
 				incMessage++;
 				Tray.viewTrayIcon();
-				
+
 			}
+
+			rowCount = currentCntRow;
 		}
+
     }
     
     public void enterChat(){
+    	String ip 	 = null;
     	String userName = null;
-    	String ip 		= null;
     	try{
     		ip 		 = InetAddress.getLocalHost().getHostAddress();
     		userName = usernameChooser.getText();
@@ -301,7 +380,7 @@ public class Chat {
     	
     	startLoginRow = chatDao.getLastRow();
     	incMessage = startLoginRow;
-        preFrame.setVisible(false);
+        loginFrame.setVisible(false);
         reloadTimer.start();
         display();
        
@@ -379,7 +458,7 @@ public class Chat {
     				trayIcon.addActionListener(actionListener);
     				trayIcon.addMouseListener(mouseListener);
     				try {
-    					if (!trayActive){
+    					if (!trayActive && !chatFrame.isActive()){
     						tray.add(trayIcon);
     						generalTray = tray;
     						generalTrayIcon = trayIcon;
