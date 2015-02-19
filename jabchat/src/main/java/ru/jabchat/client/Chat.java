@@ -26,7 +26,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -82,7 +81,7 @@ public class Chat {
 	private JButton     sendMessage;
 	
 	private JButton changeColor;
-	private Color color = Color.BLACK;
+	private Color userColor = Color.BLACK;
 	
 	private JTextField  messageBox;
 	private JTextPane chatBox;
@@ -138,13 +137,12 @@ public class Chat {
         
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
-        changeColor = new JButton("Change Color");
+        changeColor = new JButton("Choose user color");
         changeColor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				color = JColorChooser.showDialog(loginFrame, "Choose a color", color);
-
-				if (color == null){
-					color = Color.BLACK;
+				userColor = JColorChooser.showDialog(loginFrame, "Choose a color", userColor);
+				if (userColor == null){
+					userColor = Color.BLUE;
 				}
 
 			}
@@ -196,7 +194,7 @@ public class Chat {
         this.firstStyle = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(firstStyle, "Serif");
         StyleConstants.setFontSize(firstStyle, 15);
-        StyleConstants.setForeground(firstStyle, Color.BLUE);
+        StyleConstants.setForeground(firstStyle, userColor);
         // - red - 
         this.secondStyle = sc.addStyle("ConstantWidth", null);
         StyleConstants.setFontFamily(secondStyle, "Serif");
@@ -342,7 +340,7 @@ public class Chat {
 			boolean needUpdate = currentCntRow - rowCount > 0;
 			if (needUpdate) {
 				
-				for (int i = currentCntRow - rowCount; i >= 0; i--) {
+				for (int i = currentCntRow - rowCount - 1; i >= 0; i--) {
 					
 					ChatModel chatModel = chatDao.getMessage(i);
 					
