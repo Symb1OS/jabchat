@@ -1,7 +1,5 @@
 package ru.jabchat.server.model;
 
-import java.sql.Timestamp;
-
 public class UserModel {
 
 	private int id;

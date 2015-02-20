@@ -79,7 +79,7 @@ public class Chat {
 	private Integer incMessage;
 	private Integer currentCntRow;
 	  
-	private static JFrame      chatFrame    = new JFrame(APPLICATION_NAME);
+	private static JFrame chatFrame    = new JFrame(APPLICATION_NAME);
 	private JFrame      loginFrame;
 	private JButton     sendMessage;
 	

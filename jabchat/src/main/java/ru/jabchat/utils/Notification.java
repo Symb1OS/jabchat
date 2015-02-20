@@ -11,6 +11,15 @@ import ru.jabchat.server.model.UserModel;
 
 public class Notification {
 	
+	private static final String MAIL_HOSTNAME = "10.42.222.73";
+	private static final int 	MAIL_PORT 	  =  25; 
+	private static final String MAIL_LOGIN 	  = "test123";
+	private static final String MAIL_PASSWORD = "passwordqqq";
+	private static final String MAIL_FROM	  = "Vasily.Litvinenko@vwfs.com";
+	
+	private static final String IP_V 		  = "10.38.190.228";
+	private static final String IP_F		  = "10.38.190.227";
+
 	private String fromUser;
 	
 	private String message;
@@ -29,9 +38,9 @@ public class Notification {
 		for (UserModel user : offUsers) {
 		
 			String ip = user.getIp();
-			if (ip.equals("10.38.190.228")) {
+			if (ip.equals(IP_V)) {
 				eMails.add("Vasily.Litvinenko@vwfs.com");
-			} else if (ip.equals("10.38.190.227")) {
+			} else if (ip.equals(IP_F)) {
 				eMails.add("Fedor.Murashko@vwfs.com");
 			}
 			else {
@@ -47,11 +56,11 @@ public class Notification {
 			for (String eMail : eMails) {
 
 				MultiPartEmail email = new MultiPartEmail();
-				email.setHostName("10.42.222.73");
-				email.setSmtpPort(25);
-				email.setAuthentication("test123", "passwordqqq");
+				email.setHostName(MAIL_HOSTNAME);
+				email.setSmtpPort(MAIL_PORT);
+				email.setAuthentication(MAIL_LOGIN, MAIL_PASSWORD);
 				email.addTo(eMail, "");
-				email.setFrom("Vasily.Litvinenko@vwfs.com");
+				email.setFrom(MAIL_FROM);
 				email.setSubject("У вас новое сообщение от " + fromUser);
 				email.setMsg("Содержание сообщения: " + "\n" + message);
 				email.send();
