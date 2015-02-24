@@ -8,7 +8,8 @@ public class ChatModel {
 	private String userName;
 	private String message;
 	private Timestamp sendTime;
-
+	private int color; 
+	
 	public ChatModel() {
 
 	}
@@ -51,6 +52,14 @@ public class ChatModel {
 		this.id = id;
 	}
 
+	public int getColor() {
+		return color;
+	}
+
+	public void setColor(int color) {
+		this.color = color;
+	}
+	
 	@Override
 	public String toString() {
 		return "ChatModel [id=" + id + ", userName=" + userName + ", message="

@@ -19,6 +19,7 @@ public class ChatRowMapper implements RowMapper<ChatModel> {
 		chat.setUserName(crypter.decrypt(rs.getString("NAME")));
 		chat.setMessage(crypter.decrypt(rs.getString("MESSAGE")));
 		chat.setSendTime(rs.getTimestamp("SEND_TIME"));
+		chat.setColor( rs.getInt("COLOR") );
 		return chat;
 	}
 }

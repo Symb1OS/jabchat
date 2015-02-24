@@ -13,10 +13,10 @@ import ru.jabchat.utils.Config;
 public class ChatDao {
 
 	private static final String INSERT = "INSERT INTO VBR_IFRS.CHAT(ID, NAME, MESSAGE, SEND_TIME) VALUES (DEFAULT, ?, ?, ?)";
-	private static final String SELECT_ALL = "SELECT * FROM VBR_IFRS.CHAT WHERE ID > ? ORDER BY SEND_TIME";
+	private static final String SELECT_ALL = "SELECT * FROM VBR_IFRS.CHAT ch  left outer join  VBR_IFRS.CHAT_USERS us on ch.NAME  = us.NAME WHERE ID > ? ORDER BY SEND_TIME";
 	private static final String COUNT_ROWS_LOGIN = "SELECT MAX(ID)  as ID FROM VBR_IFRS.CHAT";
-	private static final String SELECT_LAST = "SELECT * FROM VBR_IFRS.CHAT WHERE (SELECT MAX(ID) FROM VBR_IFRS.CHAT) = ID";
-	private static final String SELECT_ROW = "SELECT * FROM VBR_IFRS.CHAT WHERE ID = (SELECT MAX(ID) FROM VBR_IFRS.CHAT) - ?";
+	private static final String SELECT_LAST = "SELECT * FROM VBR_IFRS.CHAT ch  left outer join  VBR_IFRS.CHAT_USERS us on ch.NAME  = us.NAME WHERE (SELECT MAX(ID) FROM VBR_IFRS.CHAT) = ID";
+	private static final String SELECT_ROW = "SELECT * FROM VBR_IFRS.CHAT ch  left outer join  VBR_IFRS.CHAT_USERS us on ch.NAME  = us.NAME WHERE ch.ID = (SELECT MAX(ID) FROM VBR_IFRS.CHAT) - ?";
 	
 	private JdbcTemplate jdbc;
 	

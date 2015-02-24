@@ -19,6 +19,7 @@ public class UserRowMapper implements RowMapper<UserModel> {
 		user.setIp( crypter.decrypt( rs.getString("IP")) );
 		user.setUserName( crypter.decrypt( rs.getString("NAME") ) );
 		user.setStatus( rs.getString("STATUS")  );
+		user.setColor( rs.getInt("COLOR")  );
 		return user;
 	}
 }

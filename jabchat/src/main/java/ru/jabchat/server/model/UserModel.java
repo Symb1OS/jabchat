@@ -6,6 +6,7 @@ public class UserModel {
 	private String ip;
 	private String userName;
 	private String status;
+	private int color;
 	
 	public UserModel(){}
 	
@@ -40,7 +41,13 @@ public class UserModel {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
+	public int getColor() {
+		return color;
+	}
+	public void setColor(int color) {
+		this.color = color;
+	}
+	
 	@Override
 	public String toString() {
 		return "UserModel [id=" + id + ", ip=" + ip + ", userName=" + userName
