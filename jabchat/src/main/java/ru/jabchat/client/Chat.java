@@ -393,9 +393,9 @@ public class Chat {
 						Style color = getStyle( chatModel.getColor());
 						
 						if (isUrl(chatModel.getMessage())) {
-							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(chatModel.getMessage()));
+							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
 							doc.insertString(doc.getLength(), date + " - ", color);
-							doc.insertString(doc.getLength(), chatModel.getMessage() + "\n", regularBlue);
+							doc.insertString(doc.getLength(), text + "\n", regularBlue);
 							chatBox.setCaretPosition(0);
 						}else {
 								doc.insertString(doc.getLength(), date +" - " + text + "\n", color );
