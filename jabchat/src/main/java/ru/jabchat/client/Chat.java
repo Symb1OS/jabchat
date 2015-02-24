@@ -3,11 +3,11 @@ package ru.jabchat.client;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MenuItem;
@@ -30,6 +30,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -44,8 +45,11 @@ import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Element;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
@@ -64,6 +68,7 @@ public class Chat {
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
+	private final static String LINK_ATTRIBUTE = "linkact";
 	
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	
@@ -98,13 +103,13 @@ public class Chat {
 
 	private StyleContext sc;
 	private Style system;
+	private Style regularBlue;
 	
 	public DefaultStyledDocument doc;
 	public JTextPane textPane;
 	public JScrollPane scrollPane;
-	
-    
-    private Style getStyle2(int color){
+
+	private Style getStyle(int color){
     	if(color == 0)
     		return  system;
     	else{
@@ -115,9 +120,6 @@ public class Chat {
 	        return style;
     	}
     }
-    
-    
-    
     
     
     public static void main(String[] args) {
@@ -162,15 +164,6 @@ public class Chat {
           });
 
         
-        changeColor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-//				userColor = JColorChooser.showDialog(loginFrame, "Choose a color", userColor);
-//				if (userColor == null){
-//					userColor = Color.BLUE;
-	//			}
-
-			}
-		});
         
         enterServer.addActionListener(new enterServerButtonListener());
         
@@ -208,6 +201,31 @@ public class Chat {
         loginFrame.setVisible(true);
 
     }
+    
+    private class TextMotionListener extends MouseInputAdapter {
+		public void mouseMoved(MouseEvent e) {
+			Element elem = doc.getCharacterElement(chatBox.viewToModel(e.getPoint()));
+			AttributeSet as = elem.getAttributes();
+			if (StyleConstants.isUnderline(as))
+				textPane.setCursor(new Cursor(Cursor.HAND_CURSOR));
+			else
+				textPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
+	}
+	
+	private class TextClickListener extends MouseAdapter {
+		public void mouseClicked(MouseEvent e) {
+			try {
+				Element elem = doc.getCharacterElement(chatBox.viewToModel(e.getPoint()));
+				AttributeSet as = elem.getAttributes();
+				URLLinkAction fla = (URLLinkAction) as.getAttribute(LINK_ATTRIBUTE);
+				if (fla != null)
+					fla.execute();
+			} catch (Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
 
     public void display() {
     	
@@ -218,6 +236,10 @@ public class Chat {
         StyleConstants.setFontFamily(system, "Serif");
         StyleConstants.setFontSize(system, 15);
         StyleConstants.setForeground(system, new Color(0,112,15));
+        
+        this.regularBlue = sc.addStyle("regularBlue", null);
+		StyleConstants.setForeground(regularBlue, Color.BLUE);
+		StyleConstants.setUnderline(regularBlue, true);
         
         
         // -- Create elements --
@@ -252,6 +274,8 @@ public class Chat {
         
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
+        chatBox.addMouseListener(new TextClickListener());
+        chatBox.addMouseMotionListener(new TextMotionListener());
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -361,17 +385,25 @@ public class Chat {
 				
 				for (int i = currentCntRow - rowCount - 1; i >= 0; i--) {
 					
-					ChatModel chatModel = chatDao.getMessage(i);
-					String date = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
-					String text = chatModel.getMessage();
-					Style color = getStyle2( chatModel.getColor());
-					
-					try {
-						doc.insertString(doc.getLength(), date +" - " + text + "\n", color );
-					} catch (BadLocationException badLocationException) {
+					try{
+						
+						ChatModel chatModel = chatDao.getMessage(i);
+						String date = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
+						String text = chatModel.getMessage();
+						Style color = getStyle( chatModel.getColor());
+						
+						if (isUrl(chatModel.getMessage())) {
+							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(chatModel.getMessage()));
+							doc.insertString(doc.getLength(), date + " - ", color);
+							doc.insertString(doc.getLength(), chatModel.getMessage() + "\n", regularBlue);
+							chatBox.setCaretPosition(0);
+						}else {
+								doc.insertString(doc.getLength(), date +" - " + text + "\n", color );
+						}	
+						
+					}catch(BadLocationException badLocationException){
 						badLocationException.printStackTrace();
 					}
-
 				}
 			}
 
@@ -507,4 +539,52 @@ public class Chat {
     	      }
 		
     	}
+    
+    private static boolean isUrl(String message){
+  	  if (message.startsWith("www") || message.startsWith("http")){
+    		  return true;
+  	  }
+		  return false;
+  }
+    
+    private class URLLinkAction extends AbstractAction{
+        private String url;
+
+        URLLinkAction(String bac){
+             url=bac;
+        }
+
+           protected void execute() {
+                    try {
+                         String osName = System.getProperty("os.name").toLowerCase();
+                        Runtime rt = Runtime.getRuntime();
+                  if (osName.indexOf( "win" ) >= 0) {
+                             rt.exec( "rundll32 url.dll,FileProtocolHandler " + url);
+                        }
+                              else if (osName.indexOf("mac") >= 0) {
+                                rt.exec( "open " + url);
+                  }
+                
+                        else if (osName.indexOf("ix") >=0 || osName.indexOf("ux") >=0 || osName.indexOf("sun") >=0) {
+                             String[] browsers = {"epiphany", "firefox", "mozilla", "konqueror",
+                               "netscape","opera","links","lynx"};
+
+                             // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
+                             StringBuffer cmd = new StringBuffer();
+                             for (int i = 0 ; i < browsers.length ; i++)
+                                  cmd.append((i == 0  ? "" : " || " ) + browsers[i] +" \"" + url + "\" ");
+
+                             rt.exec(new String[] { "sh", "-c", cmd.toString() });
+                        }
+             }
+             catch (Exception ex)
+             {
+                  ex.printStackTrace();
+             }
+               }
+
+           public void actionPerformed(ActionEvent e){
+                   execute();
+           }
+   }
     }
