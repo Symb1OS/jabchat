@@ -40,6 +40,8 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
@@ -81,10 +83,20 @@ import ru.jabchat.utils.StringCrypter;
 public class Chat {
 
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
-	public static final String ICONS_PATH 	=  "resources/icons/";
-	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
-	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
+	
+	private static final String ICONS_PATH 		=  "resources/icons/";
+	private static final String PREVIEW_ICON 	=   ICONS_PATH + "icon.png";
+	private static final String APPLICATION_ICON =   ICONS_PATH + "chat.png";
+	
 	private final static String LINK_ATTRIBUTE  =  "linkact";
+	
+	private static final Set<String> PICTURE_FORMAT = new HashSet<String>();
+	static{
+		PICTURE_FORMAT.add(".png");
+		PICTURE_FORMAT.add(".jpg");
+		PICTURE_FORMAT.add(".jpeg");
+		PICTURE_FORMAT.add(".gif");
+	}
 	
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	
@@ -181,8 +193,6 @@ public class Chat {
               }
           });
 
-        
-        
         enterServer.addActionListener(new enterServerButtonListener());
         
         JPanel prePanel = new JPanel(new GridBagLayout());
@@ -259,15 +269,11 @@ public class Chat {
 		StyleConstants.setForeground(regularBlue, Color.BLUE);
 		StyleConstants.setUnderline(regularBlue, true);
         
-        
-        // -- Create elements --
-      //  this.doc = new DefaultStyledDocument(sc);
         this.doc = new EditorDocument(sc);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
         JPanel southPanel = new JPanel();
-        //southPanel.setBackground(Color.CYAN);
         southPanel.setLayout(new GridBagLayout());
 
         messageBox = new JTextField(33);
@@ -437,48 +443,52 @@ public class Chat {
 			rowCount = currentCntRow;
 		}
 
-		private void checkAndPrint(String date, String text, Style color)
+		private void checkAndPrint(String sendTime, String message, Style style)
 				throws IOException, MalformedURLException, BadLocationException {
-			String urlString = text;
-			regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
+			
+			String urlString = message;
+			regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(message));
 
-			String checkText = text.toLowerCase();
-			boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg") || checkText.endsWith(".gif");
+			int posFormat = message.lastIndexOf(".");
+			String format = message.substring(posFormat, message.length()).toLowerCase();
+			boolean isPicture = PICTURE_FORMAT.contains(format);
 			if (isPicture) {
-				printPicture(date, color, urlString, checkText);
+				printPicture(sendTime, style, urlString, format);
 			} else {
-				printLink(date, text, color);
+				printLink(sendTime, message, style);
 			}
 		}
 
-		private void printMessage(String date, String text, Style color)
+		private void printMessage(String sendTime, String message, Style style)
 				throws BadLocationException {
-			doc.insertString(doc.getLength(), date + " - " + text + "\n", color);
+			doc.insertString(doc.getLength(), sendTime + " - " + message + "\n", style);
 		}
 
-		private void printLink(String date, String text, Style color)
+		private void printLink(String sendTime, String message, Style style)
 				throws BadLocationException {
-			doc.insertString(doc.getLength(), date + " - ",	color);
-			doc.insertString(doc.getLength(), text + "\n", regularBlue);
+			doc.insertString(doc.getLength(), sendTime + " - ",	style);
+			doc.insertString(doc.getLength(), message + "\n", regularBlue);
 		}
 
-		private void printPicture(String date, Style color, String urlString,
-				String checkText) throws IOException, MalformedURLException,
+		private void printPicture(String sendTime, Style style, String urlString,
+				String format) throws IOException, MalformedURLException,
 				BadLocationException {
 			
 			setProxy();
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 			InputStream inStream = httpConn.getInputStream();
-			ImageIcon imageIcon = getImageIcon(checkText, inStream);
+			ImageIcon imageIcon = getImageIcon(format, inStream);
 			
-			doc.insertString(doc.getLength(), date + " - \n", color);
+			doc.insertString(doc.getLength(), sendTime + " - \n", style);
 			doc.setIcon(doc.getLength(), " ", imageIcon);
 		}
 
-		private ImageIcon getImageIcon(String checkText, InputStream inStream) throws IOException {
+		private ImageIcon getImageIcon(String format, InputStream inStream) throws IOException {
+			
 			Image image;
 			ImageIcon imageIcon;
-			boolean isGif = checkText.endsWith(".gif");
+			
+			boolean isGif = format.endsWith(".gif");
 			if(!isGif){
 				image = ImageIO.read(inStream);
 				imageIcon = new ImageIcon(image);
@@ -659,7 +669,6 @@ public class Chat {
                              String[] browsers = {"epiphany", "firefox", "mozilla", "konqueror",
                                "netscape","opera","links","lynx"};
 
-                             // Build a command string which looks like "browser1 "url" || browser2 "url" ||..."
                              StringBuffer cmd = new StringBuffer();
                              for (int i = 0 ; i < browsers.length ; i++)
                                   cmd.append((i == 0  ? "" : " || " ) + browsers[i] +" \"" + url + "\" ");
