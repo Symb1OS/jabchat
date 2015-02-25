@@ -24,8 +24,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -75,6 +79,7 @@ import ru.jabchat.utils.StringCrypter;
 public class Chat {
 
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
+	public static final String ICONS_PATH 	=  "resources/icons/";
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
 	private final static String LINK_ATTRIBUTE  =  "linkact";
@@ -408,15 +413,27 @@ public class Chat {
 							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
 
 							String checkText = text.toLowerCase();
-							boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg");
+							boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg") || checkText.endsWith(".gif");
 							if (isPicture) {
 								setProxy();
 								HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 								InputStream inStream = httpConn.getInputStream();
-								Image image = ImageIO.read(inStream);
+								
+								Image image = null;
+								ImageIcon imageIcon = null;
+								
+								boolean isGif = checkText.endsWith(".gif");
+								if(!isGif){
+									image = ImageIO.read(inStream);
+									imageIcon = new ImageIcon(image);
+								}else {
+									recordGif(inStream);
+									imageIcon = new ImageIcon(ICONS_PATH + "default.gif");
+									
+								}
 								
 								doc.insertString(doc.getLength(), date + " - \n", color);
-								doc.setIcon(doc.getLength(), " ", new ImageIcon(image));
+								doc.setIcon(doc.getLength(), " ", imageIcon);
 								
 							} else {
 								doc.insertString(doc.getLength(), date + " - ",	color);
@@ -436,7 +453,7 @@ public class Chat {
 						e1.printStackTrace();
 					} catch (IOException e1) {
 						e1.printStackTrace();
-					}
+					} 
 				}
 			}
 
@@ -448,6 +465,27 @@ public class Chat {
 			}
 
 			rowCount = currentCntRow;
+		}
+
+		private void recordGif(InputStream inStream)	throws FileNotFoundException, IOException {
+			
+			try {
+
+				OutputStream outputStream = new FileOutputStream(new File(
+						ICONS_PATH + "default.gif"));
+
+				int read = 0;
+				byte[] bytes = new byte[1024];
+
+				while ((read = inStream.read(bytes)) != -1) {
+					outputStream.write(bytes, 0, read);
+				}
+
+				outputStream.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
     }
     
