@@ -24,16 +24,25 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
@@ -48,7 +57,6 @@ import javax.swing.UIManager;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Element;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -58,6 +66,7 @@ import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
+import ru.jabchat.utils.EditorDocument;
 import ru.jabchat.utils.Notification;
 import ru.jabchat.utils.ObjectRecorder;
 import ru.jabchat.utils.Settings;
@@ -68,7 +77,7 @@ public class Chat {
 	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
 	public static final String PREVIEW_ICON 	=  "resources/icons/icon.png";
 	public static final String APPLICATION_ICON =  "resources/icons/chat.png";
-	private final static String LINK_ATTRIBUTE = "linkact";
+	private final static String LINK_ATTRIBUTE  =  "linkact";
 	
 	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
 	
@@ -105,7 +114,9 @@ public class Chat {
 	private Style system;
 	private Style regularBlue;
 	
-	public DefaultStyledDocument doc;
+	public EditorDocument doc;
+    public EditorDocument docEdit = new EditorDocument();
+	
 	public JTextPane textPane;
 	public JScrollPane scrollPane;
 
@@ -243,7 +254,8 @@ public class Chat {
         
         
         // -- Create elements --
-        this.doc = new DefaultStyledDocument(sc);
+      //  this.doc = new DefaultStyledDocument(sc);
+        this.doc = new EditorDocument(sc);
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
@@ -318,7 +330,6 @@ public class Chat {
 			
 		});
         
-        
         JPanel allContent = new JPanel();
         allContent.setLayout(new BoxLayout(allContent, BoxLayout.LINE_AXIS));
         allContent.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -332,7 +343,7 @@ public class Chat {
         
         chatFrame.add(allContent);
         chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        chatFrame.setSize(470, 300);
+        chatFrame.setSize(600, 300);
         chatFrame.setVisible(true);
         
     }
@@ -342,19 +353,18 @@ public class Chat {
     }
     
     private void sendMessage(){
-
+    	
         if (messageBox.getText().length() < 1) {
         } else if (messageBox.getText().equals(".clear")) {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-         //   chatBox.append("<" + user.getUserName() + ">:  " + messageBox.getText()  + "\n");            
             ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
             
             if (offUsersExist()){
             	Notification notification = new Notification(user.getUserName(), messageBox.getText());
-            	notification.sendMail();
+            	//TODO notification.sendMail();
             }
             
             messageBox.setText("");
@@ -392,17 +402,40 @@ public class Chat {
 						String text = chatModel.getMessage();
 						Style color = getStyle( chatModel.getColor());
 						
-						if (isUrl(chatModel.getMessage())) {
+						if (isUrl(text)) {
+
+							String urlString = text;
 							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
-							doc.insertString(doc.getLength(), date + " - ", color);
-							doc.insertString(doc.getLength(), text + "\n", regularBlue);
-							chatBox.setCaretPosition(0);
-						}else {
-								doc.insertString(doc.getLength(), date +" - " + text + "\n", color );
-						}	
+
+							String checkText = text.toLowerCase();
+							boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg");
+							if (isPicture) {
+								setProxy();
+								HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
+								InputStream inStream = httpConn.getInputStream();
+								Image image = ImageIO.read(inStream);
+								
+								doc.insertString(doc.getLength(), date + " - \n", color);
+								doc.setIcon(doc.getLength(), " ", new ImageIcon(image));
+								
+							} else {
+								doc.insertString(doc.getLength(), date + " - ",	color);
+								doc.insertString(doc.getLength(), text + "\n", regularBlue);
+							}
+
+						} else {
+
+							doc.insertString(doc.getLength(), date + " - " + text + "\n", color);
+
+						}
+						scrollPane.getVerticalScrollBar().setValue(0);
 						
 					}catch(BadLocationException badLocationException){
 						badLocationException.printStackTrace();
+					} catch (MalformedURLException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
 				}
 			}
@@ -416,8 +449,23 @@ public class Chat {
 
 			rowCount = currentCntRow;
 		}
-
     }
+    
+	private void setProxy() {
+
+    	System.setProperty("java.net.useSystemProxies", "true");
+        System.setProperty("http.proxyHost", 	 "10.41.77.151");
+        System.setProperty("http.proxyPort",  	 "8080");
+        System.setProperty("http.proxyUser", 	 "dkx60pi");
+        System.setProperty("http.proxyPassword", "699GuH691");
+
+		Authenticator.setDefault(new Authenticator() {
+			public PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication("dkx60pi", "699GuH691".toCharArray());
+			}
+		});
+        
+	}
     
     public void enterChat(){
     	
@@ -488,34 +536,14 @@ public class Chat {
     					}
     				};
     				
-    				MouseListener mouseListener = new MouseListener() {
-    					
-    					@Override
-    					public void mouseReleased(MouseEvent e) {
-    						
-    					}
-    					
+    				MouseListener mouseListener = new MouseAdapter() {
     					@Override
     					public void mousePressed(MouseEvent e) {
     						tray.remove(trayIcon);
     						trayActive = false;
     					}
     					
-    					@Override
-    					public void mouseExited(MouseEvent e) {
-    						
-    					}
-    					
-    					@Override
-    					public void mouseEntered(MouseEvent e) {
-    						
-    					}
-    					
-    					@Override
-    					public void mouseClicked(MouseEvent e) {
-    						
-    					}
-    				};
+					};
     					
     				trayIcon.setImageAutoSize(true);
     				trayIcon.addActionListener(actionListener);
@@ -548,7 +576,9 @@ public class Chat {
   }
     
     private class URLLinkAction extends AbstractAction{
-        private String url;
+
+    	private static final long serialVersionUID = 1L;
+		private String url;
 
         URLLinkAction(String bac){
              url=bac;
@@ -557,7 +587,7 @@ public class Chat {
            protected void execute() {
                     try {
                          String osName = System.getProperty("os.name").toLowerCase();
-                        Runtime rt = Runtime.getRuntime();
+                         Runtime rt = Runtime.getRuntime();
                   if (osName.indexOf( "win" ) >= 0) {
                              rt.exec( "rundll32 url.dll,FileProtocolHandler " + url);
                         }
