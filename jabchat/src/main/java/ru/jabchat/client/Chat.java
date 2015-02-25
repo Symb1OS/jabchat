@@ -66,6 +66,8 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import org.apache.commons.io.IOUtils;
+
 import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
@@ -369,7 +371,7 @@ public class Chat {
             
             if (offUsersExist()){
             	Notification notification = new Notification(user.getUserName(), messageBox.getText());
-            	//TODO notification.sendMail();
+            	//notification.sendMail();
             }
             
             messageBox.setText("");
@@ -403,48 +405,17 @@ public class Chat {
 					try{
 						
 						ChatModel chatModel = chatDao.getMessage(i);
-						String date = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
-						String text = chatModel.getMessage();
-						Style color = getStyle( chatModel.getColor());
+						String timeSend = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
+						String message = chatModel.getMessage();
+						Style style = getStyle( chatModel.getColor());
 						
-						if (isUrl(text)) {
-
-							String urlString = text;
-							regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
-
-							String checkText = text.toLowerCase();
-							boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg") || checkText.endsWith(".gif");
-							if (isPicture) {
-								setProxy();
-								HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
-								InputStream inStream = httpConn.getInputStream();
-								
-								Image image = null;
-								ImageIcon imageIcon = null;
-								
-								boolean isGif = checkText.endsWith(".gif");
-								if(!isGif){
-									image = ImageIO.read(inStream);
-									imageIcon = new ImageIcon(image);
-								}else {
-									recordGif(inStream);
-									imageIcon = new ImageIcon(ICONS_PATH + "default.gif");
-									
-								}
-								
-								doc.insertString(doc.getLength(), date + " - \n", color);
-								doc.setIcon(doc.getLength(), " ", imageIcon);
-								
-							} else {
-								doc.insertString(doc.getLength(), date + " - ",	color);
-								doc.insertString(doc.getLength(), text + "\n", regularBlue);
-							}
-
+						if (isUrl(message)) {
+							checkAndPrint(timeSend, message, style);
 						} else {
-
-							doc.insertString(doc.getLength(), date + " - " + text + "\n", color);
+							printMessage(timeSend, message, style);
 
 						}
+						
 						scrollPane.getVerticalScrollBar().setValue(0);
 						
 					}catch(BadLocationException badLocationException){
@@ -463,16 +434,67 @@ public class Chat {
 				Tray.viewTrayIcon();
 
 			}
-
 			rowCount = currentCntRow;
 		}
 
+		private void checkAndPrint(String date, String text, Style color)
+				throws IOException, MalformedURLException, BadLocationException {
+			String urlString = text;
+			regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(text));
+
+			String checkText = text.toLowerCase();
+			boolean isPicture = checkText.endsWith(".png") || checkText.endsWith(".jpg") || checkText.endsWith(".jpeg") || checkText.endsWith(".gif");
+			if (isPicture) {
+				printPicture(date, color, urlString, checkText);
+			} else {
+				printLink(date, text, color);
+			}
+		}
+
+		private void printMessage(String date, String text, Style color)
+				throws BadLocationException {
+			doc.insertString(doc.getLength(), date + " - " + text + "\n", color);
+		}
+
+		private void printLink(String date, String text, Style color)
+				throws BadLocationException {
+			doc.insertString(doc.getLength(), date + " - ",	color);
+			doc.insertString(doc.getLength(), text + "\n", regularBlue);
+		}
+
+		private void printPicture(String date, Style color, String urlString,
+				String checkText) throws IOException, MalformedURLException,
+				BadLocationException {
+			
+			setProxy();
+			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
+			InputStream inStream = httpConn.getInputStream();
+			ImageIcon imageIcon = getImageIcon(checkText, inStream);
+			
+			doc.insertString(doc.getLength(), date + " - \n", color);
+			doc.setIcon(doc.getLength(), " ", imageIcon);
+		}
+
+		private ImageIcon getImageIcon(String checkText, InputStream inStream) throws IOException {
+			Image image;
+			ImageIcon imageIcon;
+			boolean isGif = checkText.endsWith(".gif");
+			if(!isGif){
+				image = ImageIO.read(inStream);
+				imageIcon = new ImageIcon(image);
+			}else {
+				byte[] bytes = IOUtils.toByteArray(inStream);
+				imageIcon = new ImageIcon(bytes);
+			}
+			return imageIcon;
+		}
+
+		@SuppressWarnings("unused")
 		private void recordGif(InputStream inStream)	throws FileNotFoundException, IOException {
 			
 			try {
 
-				OutputStream outputStream = new FileOutputStream(new File(
-						ICONS_PATH + "default.gif"));
+				OutputStream outputStream = new FileOutputStream(new File(ICONS_PATH + "default.gif"));
 
 				int read = 0;
 				byte[] bytes = new byte[1024];
