@@ -550,7 +550,12 @@ public class Chat {
     	try{
     		ip 		 = InetAddress.getLocalHost().getHostAddress();
     		userName = usernameChooser.getText();
-    		user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName), color );
+    		if (userName.isEmpty()){
+    			user = usersDao.getDefaultName(crypter.encrypt(ip));
+    		}else {
+    			user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName), color );
+			}
+    		
 		}catch(UnknownHostException e){
 			e.printStackTrace();
 		}
@@ -561,7 +566,7 @@ public class Chat {
         reloadTimer.start();
         display();
        
-        ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + userName + " присоединяется к беседе."), new Timestamp(new Date().getTime()));
+        ChatModel chatModel = new ChatModel(crypter.encrypt("Система"), crypter.encrypt("Пользователь " + user.getUserName() + " присоединяется к беседе."), new Timestamp(new Date().getTime()));
 		chatDao.insertMessage(chatModel);
 		
         messageBox.requestFocusInWindow();

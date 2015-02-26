@@ -20,9 +20,11 @@ public class UserDao {
 	private static final String SELECT_USER 	 = "SELECT * FROM VBR_IFRS.CHAT_USERS WHERE IP = ?";
 	private static final String SELECT_OFF_USERS = "SELECT * FROM VBR_IFRS.CHAT_USERS WHERE status like '%off%'";
 	private static final String OFF_EXIST		 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
+	private static final String DEFAULT_NAME 	 = "SELECT * FROM VBR_IFRS.CHAT_USERS WHERE IP = ?";
 	
 	//private static final String COLOR			 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
 	private static final boolean [] STATUS = {false, true};
+	
 	
 	private JdbcTemplate jdbc;
 	
@@ -73,6 +75,11 @@ public class UserDao {
 			jdbc.update(INS_PARAM, ip, userName,  "on", color );
 			return getUser(ip);
 		}
+	}
+	
+	public UserModel getDefaultName(String ip){
+		return jdbc.queryForObject(DEFAULT_NAME, new Object[]{ip}, new UserRowMapper());
+		
 	}
 	
 	public void disconnect(UserModel user){
