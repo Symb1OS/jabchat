@@ -63,6 +63,7 @@ import javax.swing.UIManager;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
 import javax.swing.text.Element;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -74,6 +75,7 @@ import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
+import ru.jabchat.utils.Config;
 import ru.jabchat.utils.EditorDocument;
 import ru.jabchat.utils.Notification;
 import ru.jabchat.utils.ObjectRecorder;
@@ -88,7 +90,7 @@ public class Chat {
 	private static final String PREVIEW_ICON 	 =   ICONS_PATH + "icon.png";
 	private static final String APPLICATION_ICON =   ICONS_PATH + "chat.png";
 	
-	private final static String LINK_ATTRIBUTE  =  "linkact";
+	private final static String LINK_ATTRIBUTE   =  "linkact";
 	
 	private static final Set<String> PICTURE_FORMAT = new HashSet<String>();
 	static{
@@ -139,15 +141,15 @@ public class Chat {
 	public JTextPane textPane;
 	public JScrollPane scrollPane;
 
-	private Style getStyle(int color){
+	private Style getUserStyle(int color){
     	if(color == 0)
     		return  system;
     	else{
-	        Style style = sc.addStyle("ConstantWidth", null);
-	        StyleConstants.setFontFamily(style, "Serif");
-	        StyleConstants.setFontSize(style, 15);
-	        StyleConstants.setForeground(style, new Color(color));
-	        return style;
+	        Style userStyle = sc.addStyle("ConstantWidth", null);
+	        StyleConstants.setFontFamily(userStyle, "Serif");
+	        StyleConstants.setFontSize(userStyle, 15);
+	        StyleConstants.setForeground(userStyle, new Color(color));
+	        return userStyle;
     	}
     }
     
@@ -301,6 +303,9 @@ public class Chat {
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
         chatBox.addMouseListener(new TextClickListener());
         chatBox.addMouseMotionListener(new TextMotionListener());
+        
+		DefaultCaret caret = (DefaultCaret) chatBox.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
@@ -412,7 +417,7 @@ public class Chat {
 						ChatModel chatModel = chatDao.getMessage(i);
 						String timeSend = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
 						String message = chatModel.getMessage();
-						Style style = getStyle( chatModel.getColor());
+						Style style = getUserStyle( chatModel.getColor());
 						
 						if (isUrl(message)) {
 							checkAndPrint(timeSend, message, style);
@@ -420,8 +425,6 @@ public class Chat {
 							printMessage(timeSend, message, style);
 
 						}
-						
-						scrollPane.getVerticalScrollBar().setValue(0);
 						
 					}catch(BadLocationException badLocationException){
 						badLocationException.printStackTrace();
@@ -474,7 +477,7 @@ public class Chat {
 				String format) throws IOException, MalformedURLException,
 				BadLocationException {
 			
-			setProxy();
+			Config.setProxy();
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 			InputStream inStream = httpConn.getInputStream();
 			ImageIcon imageIcon = getImageIcon(format, inStream);
@@ -517,7 +520,6 @@ public class Chat {
 
 				int read = 0;
 				byte[] bytes = new byte[1024];
-
 				while ((read = inStream.read(bytes)) != -1) {
 					outputStream.write(bytes, 0, read);
 				}
@@ -530,21 +532,6 @@ public class Chat {
 		}
     }
     
-	private void setProxy() {
-
-    	System.setProperty("java.net.useSystemProxies", "true");
-        System.setProperty("http.proxyHost", 	 "10.41.77.151");
-        System.setProperty("http.proxyPort",  	 "8080");
-        System.setProperty("http.proxyUser", 	 "dkx60pi");
-        System.setProperty("http.proxyPassword", "699GuH691");
-
-		Authenticator.setDefault(new Authenticator() {
-			public PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication("dkx60pi", "699GuH691".toCharArray());
-			}
-		});
-        
-	}
     
     public void enterChat(){
     	
@@ -664,7 +651,8 @@ public class Chat {
         }
 
            protected void execute() {
-                    try {
+                   
+        	   try {
                          String osName = System.getProperty("os.name").toLowerCase();
                          Runtime rt = Runtime.getRuntime();
                   if (osName.indexOf( "win" ) >= 0) {
