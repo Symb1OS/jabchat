@@ -550,11 +550,12 @@ public class Chat {
     	try{
     		ip 		 = InetAddress.getLocalHost().getHostAddress();
     		userName = usernameChooser.getText();
+    	
     		if (userName.isEmpty()){
-    			user = usersDao.getDefaultName(crypter.encrypt(ip));
-    		}else {
-    			user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName), color );
-			}
+    			userName = usersDao.getDefaultName(crypter.encrypt(ip)).getUserName();
+    		}	
+    		
+    		user = usersDao.login(crypter.encrypt(ip), crypter.encrypt(userName), color );
     		
 		}catch(UnknownHostException e){
 			e.printStackTrace();

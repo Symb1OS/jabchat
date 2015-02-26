@@ -22,7 +22,6 @@ public class UserDao {
 	private static final String OFF_EXIST		 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
 	private static final String DEFAULT_NAME 	 = "SELECT * FROM VBR_IFRS.CHAT_USERS WHERE IP = ?";
 	
-	//private static final String COLOR			 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
 	private static final boolean [] STATUS = {false, true};
 	
 	
@@ -67,10 +66,13 @@ public class UserDao {
 	}
 	
 	public UserModel login(String ip, String userName, String color){
+		
 		try{
+			
 			int id = getId(ip);
 			jdbc.update(SET_PARAM, "on", userName,  color, id );
 			return getUser(ip);
+			
 		}catch(org.springframework.dao.EmptyResultDataAccessException e){
 			jdbc.update(INS_PARAM, ip, userName,  "on", color );
 			return getUser(ip);
