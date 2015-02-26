@@ -82,10 +82,10 @@ import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
 
-	public static final String APPLICATION_NAME =  "Vasya&Fedya Production";
+	public static final String APPLICATION_NAME  =  "Vasya&Fedya Production";
 	
-	private static final String ICONS_PATH 		=  "resources/icons/";
-	private static final String PREVIEW_ICON 	=   ICONS_PATH + "icon.png";
+	private static final String ICONS_PATH 		 =  "resources/icons/";
+	private static final String PREVIEW_ICON 	 =   ICONS_PATH + "icon.png";
 	private static final String APPLICATION_ICON =   ICONS_PATH + "chat.png";
 	
 	private final static String LINK_ATTRIBUTE  =  "linkact";
@@ -235,9 +235,9 @@ public class Chat {
 			Element elem = doc.getCharacterElement(chatBox.viewToModel(e.getPoint()));
 			AttributeSet as = elem.getAttributes();
 			if (StyleConstants.isUnderline(as))
-				textPane.setCursor(new Cursor(Cursor.HAND_CURSOR));
+				chatBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			else
-				textPane.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+				chatBox.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
 	
@@ -352,7 +352,6 @@ public class Chat {
         
         allContent.add(Box.createRigidArea(new Dimension(5, 5)));
         allContent.add(userWin.getWindow());
-        
         
         chatFrame.add(allContent);
         chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

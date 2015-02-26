@@ -65,6 +65,4 @@ public class ChatModel {
 		return "ChatModel [id=" + id + ", userName=" + userName + ", message="
 				+ message + ", sendTime=" + sendTime + "]";
 	}
-	
-
 }

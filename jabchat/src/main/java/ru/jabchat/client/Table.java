@@ -9,6 +9,8 @@ import javax.swing.table.TableCellRenderer;
 
 public class Table  extends JTable implements TableCellRenderer {
 	
+	private static final long serialVersionUID = 1L;
+
 	public Table(TableModel tableModel) {
 		setModel(tableModel);
 	}
