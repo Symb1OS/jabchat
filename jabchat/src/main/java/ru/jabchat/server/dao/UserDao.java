@@ -21,9 +21,8 @@ public class UserDao {
 	private static final String SELECT_OFF_USERS = "SELECT * FROM VBR_IFRS.CHAT_USERS WHERE status like '%off%'";
 	private static final String OFF_EXIST		 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
 	
-	
 	//private static final String COLOR			 = "SELECT CASE WHEN EXISTS(SELECT * FROM VBR_IFRS.CHAT_USERS WHERE STATUS LIKE '%off%') THEN 1 ELSE 0 END AS FLAG FROM SYSIBM.SYSDUMMY1";
-	private static final boolean [] status ={false, true};
+	private static final boolean [] STATUS = {false, true};
 	
 	private JdbcTemplate jdbc;
 	
@@ -52,7 +51,7 @@ public class UserDao {
 	@SuppressWarnings("deprecation")
 	public boolean offExists(){
 		int flag = jdbc.queryForInt(OFF_EXIST);
-		return status[flag];
+		return STATUS[flag];
 		
 	}
 	

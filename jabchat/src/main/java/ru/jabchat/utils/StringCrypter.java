@@ -52,7 +52,9 @@ public class StringCrypter {
  
     public static class DESSecretKey implements SecretKey {
  
-        private final byte[] key;
+		private static final long serialVersionUID = 1L;
+		
+		private final byte[] key;
  
         /**
          * ключ должен иметь длину 8 байт

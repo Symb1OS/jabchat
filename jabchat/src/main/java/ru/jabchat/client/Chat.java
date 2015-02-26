@@ -445,12 +445,13 @@ public class Chat {
 
 		private void checkAndPrint(String sendTime, String message, Style style)
 				throws IOException, MalformedURLException, BadLocationException {
-			
+
 			String urlString = message;
 			regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(message));
 
 			int posFormat = message.lastIndexOf(".");
 			String format = message.substring(posFormat, message.length()).toLowerCase();
+			
 			boolean isPicture = PICTURE_FORMAT.contains(format);
 			if (isPicture) {
 				printPicture(sendTime, style, urlString, format);
@@ -479,8 +480,9 @@ public class Chat {
 			InputStream inStream = httpConn.getInputStream();
 			ImageIcon imageIcon = getImageIcon(format, inStream);
 			
-			doc.insertString(doc.getLength(), sendTime + " - \n", style);
+			doc.insertString(doc.getLength(), sendTime + " - " + "\n", style);
 			doc.setIcon(doc.getLength(), " ", imageIcon);
+			doc.insertString(doc.getLength(), "\n", style);
 		}
 
 		private ImageIcon getImageIcon(String format, InputStream inStream) throws IOException {
@@ -495,7 +497,15 @@ public class Chat {
 			}else {
 				byte[] bytes = IOUtils.toByteArray(inStream);
 				imageIcon = new ImageIcon(bytes);
+				
+				//TODO первоначальный вариант
+				//
+				//			парсим, сохраняем локально, создаем иконку,вставляем в док
+				//			recordGif(inStream);
+				//			imageIcon = new ImageIcon(ICONS_PATH  + "default.gif");
+				//				хотяяяя, нахуя что-то сохранять если можно из потока срау ебануть :D
 			}
+			
 			return imageIcon;
 		}
 
