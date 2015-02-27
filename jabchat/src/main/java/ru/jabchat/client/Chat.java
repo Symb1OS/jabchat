@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,17 +31,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -55,11 +58,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -87,6 +92,7 @@ public class Chat {
 	public static final String APPLICATION_NAME  =  "Vasya&Fedya Production";
 	
 	private static final String ICONS_PATH 		 =  "resources/icons/";
+	private static final String SMILES_PATH      =  "smiles/";
 	private static final String PREVIEW_ICON 	 =   ICONS_PATH + "icon.png";
 	private static final String APPLICATION_ICON =   ICONS_PATH + "chat.png";
 	
@@ -125,9 +131,11 @@ public class Chat {
 	
 	private Settings settings = new Settings(); 
 	private JButton changeColor;
+	private JButton smilesButton;
+	
 	private Color userColor = Color.BLACK;
 	
-	private JTextField  messageBox;
+	private static JTextArea  messageBox;
 	private JTextPane chatBox;
 	private JTextField usernameChooser = new JTextField(15);
 
@@ -173,6 +181,7 @@ public class Chat {
     
     public void preDisplay() {
        
+    	chatFrame.setMinimumSize(new Dimension(300, 200));
     	chatFrame.setVisible(false);
         loginFrame = new JFrame(APPLICATION_NAME);
         
@@ -243,6 +252,7 @@ public class Chat {
 		}
 	}
 	
+    
 	private class TextClickListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
 			try {
@@ -256,7 +266,37 @@ public class Chat {
 			}
 		}
 	}
-
+	
+	private List<String> getListWords(String message){
+    	List<String> listWords = new ArrayList<String>();
+    	message  = message + " ";
+    	String word = "";
+    	char[] arrayMessage = message.toCharArray();
+    	for (int i = 0; i < arrayMessage.length; i++) {
+			if (arrayMessage[i] != ' '){
+				word = word + arrayMessage[i];
+			}else {
+				listWords.add(word);
+				word = "";
+			}
+		}
+    	return listWords;
+    }
+	
+    private boolean isSmilesExist(String message){
+    	
+    	List<String> words = getListWords(message);
+    	
+    	for (String word : words) {
+    		boolean isSmile = Smiles.SMILE_NAME.get(word) != null; 
+    		if(isSmile){
+    			return true;
+    		}
+		}
+    	return false;
+    	
+    }
+	
     public void display() {
     	
     	rowCount = currentCntRow = chatDao.getLastRow();
@@ -275,10 +315,12 @@ public class Chat {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
-        JPanel southPanel = new JPanel();
-        southPanel.setLayout(new GridBagLayout());
-
-        messageBox = new JTextField(33);
+        Font font = new Font("Times New Roman",Font.PLAIN , 14);
+        Border border = BorderFactory.createLineBorder(Color.GRAY, 1);
+        
+        messageBox = new JTextArea();
+        messageBox.setFont(font);
+        messageBox.setBorder(border);
         messageBox.requestFocusInWindow();
         messageBox.addKeyListener(new KeyAdapter() {
       	  public void keyPressed(KeyEvent e) {
@@ -290,15 +332,20 @@ public class Chat {
       	    }
 		});
 
-        sendMessage = new JButton("Send Message");
+        sendMessage = new JButton("Send");
+        sendMessage.setPreferredSize(new Dimension(80, 35));
         sendMessage.addActionListener(new sendMessageButtonListener());
+        
+        smilesButton = new JButton();
+        smilesButton.setPreferredSize(new Dimension(35, 35));
+        smilesButton.setIcon(new ImageIcon(ICONS_PATH + "smile.png"));
+        smilesButton.addActionListener(new selectSmileButtonListener());
 
         this.textPane = new JTextPane(doc);
         this.textPane.setBackground(Color.WHITE);
         this.scrollPane = new JScrollPane(textPane);   
         
         chatBox = new JTextPane(doc);
-        
         chatBox.setEditable(false);
         chatBox.setFont(new Font("Serif", Font.PLAIN, 15));
         chatBox.addMouseListener(new TextClickListener());
@@ -309,21 +356,21 @@ public class Chat {
 
         mainPanel.add(new JScrollPane(chatBox), BorderLayout.CENTER);
 
-        GridBagConstraints left = new GridBagConstraints();
-        left.anchor = GridBagConstraints.LINE_START;
-        left.fill = GridBagConstraints.HORIZONTAL;
-        left.weightx = 512.0D;
-        left.weighty = 1.0D;
-
-        GridBagConstraints right = new GridBagConstraints();
-        right.insets = new Insets(0, 10, 0, 0);
-        right.anchor = GridBagConstraints.LINE_END;
-        right.fill = GridBagConstraints.NONE;
-        right.weightx = 1.0D;
-        right.weighty = 1.0D;
-
-        southPanel.add(messageBox, left);
-        southPanel.add(sendMessage, right);
+        JPanel southPanel = new JPanel();
+        southPanel.setLayout(new BorderLayout());
+        
+        JPanel chatPanel = new JPanel();
+        chatPanel.setLayout(new BorderLayout());
+        chatPanel.add(messageBox, BorderLayout.CENTER);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+        buttonPanel.add(smilesButton);
+        buttonPanel.add(sendMessage);
+        
+        southPanel.add(chatPanel, BorderLayout.CENTER);
+        southPanel.add(buttonPanel, BorderLayout.EAST);
+        southPanel.setPreferredSize(new Dimension(35,40));
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
@@ -334,7 +381,6 @@ public class Chat {
         			 trayActive = false;
         		 }
              }
-
 
 			public void windowClosing(WindowEvent event) {
 
@@ -369,6 +415,15 @@ public class Chat {
     	return usersDao.offExists();
     }
     
+    class selectSmileButtonListener implements ActionListener {
+    	@Override
+    	public void actionPerformed(ActionEvent e) {
+    		
+    		Smiles smiles = new Smiles();
+
+    	}
+    }
+    
     private void sendMessage(){
     	
         if (messageBox.getText().length() < 1) {
@@ -376,7 +431,7 @@ public class Chat {
             chatBox.setText("Cleared all messages\n");
             messageBox.setText("");
         } else {
-            ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText()), new Timestamp(new Date().getTime()));
+            ChatModel chatModel = new ChatModel(crypter.encrypt(user.getUserName()), crypter.encrypt(messageBox.getText().trim()), new Timestamp(new Date().getTime()));
             chatDao.insertMessage(chatModel);
             
             if (offUsersExist()){
@@ -398,7 +453,6 @@ public class Chat {
         }
     }
     
-    
     class ReloadChatBox implements ActionListener{
 
 		@Override
@@ -413,7 +467,6 @@ public class Chat {
 				for (int i = currentCntRow - rowCount - 1; i >= 0; i--) {
 					
 					try{
-						
 						ChatModel chatModel = chatDao.getMessage(i);
 						String timeSend = new SimpleDateFormat("[HH:mm]").format(chatModel.getSendTime()).toString();
 						String message = chatModel.getMessage();
@@ -423,7 +476,6 @@ public class Chat {
 							checkAndPrint(timeSend, message, style);
 						} else {
 							printMessage(timeSend, message, style);
-
 						}
 						
 					}catch(BadLocationException badLocationException){
@@ -464,7 +516,34 @@ public class Chat {
 
 		private void printMessage(String sendTime, String message, Style style)
 				throws BadLocationException {
-			doc.insertString(doc.getLength(), sendTime + " - " + message + "\n", style);
+		
+			message = message.trim();
+			
+			if (message.startsWith("Пользователь")){
+				doc.insertString(doc.getLength(), sendTime + " - " + message + "\n", style);
+			}else{
+				
+					doc.insertString(doc.getLength(), sendTime + " - " , style);
+					
+					boolean smileExist = isSmilesExist(message);
+					if(smileExist){
+						
+						List<String> words = getListWords(message);
+						for (String word : words) {
+							boolean isSmile = Smiles.SMILE_NAME.get(word) != null;
+							if (isSmile){
+								doc.setIcon(doc.getLength(), " ", new ImageIcon(Smiles.SMILE_NAME.get(word)));
+							}else {
+								doc.insertString(doc.getLength(), word + " ", style);
+							}
+						}
+						
+					}else {
+						doc.insertString(doc.getLength(), message + " ", style);
+					}
+					doc.insertString(doc.getLength(), "\n", style);
+			}
+			
 		}
 
 		private void printLink(String sendTime, String message, Style style)
@@ -500,12 +579,6 @@ public class Chat {
 				byte[] bytes = IOUtils.toByteArray(inStream);
 				imageIcon = new ImageIcon(bytes);
 				
-				//TODO первоначальный вариант
-				//
-				//			парсим, сохраняем локально, создаем иконку,вставляем в док
-				//			recordGif(inStream);
-				//			imageIcon = new ImageIcon(ICONS_PATH  + "default.gif");
-				//				хотяяяя, нахуя что-то сохранять если можно из потока срау ебануть :D
 			}
 			
 			return imageIcon;
@@ -689,4 +762,118 @@ public class Chat {
                    execute();
            }
    }
+    
+    static class Smiles extends JFrame{
+    	
+		private static final long serialVersionUID = 1L;
+		
+    	public static final Map<String, String> SMILE_PATH = new HashMap<String, String>();
+    	
+    	public static final Map<String, String> SMILE_NAME = new HashMap<String, String>();
+	    	static{
+	    		
+		    	SMILE_PATH.put("resources/icons/smiles/biggrin.gif"	 , ":D");
+		    	SMILE_PATH.put("resources/icons/smiles/crazy.gif"  	 , ":crazy");
+		    	SMILE_PATH.put("resources/icons/smiles/exclaim.gif"  , ":exclaim");
+		    	SMILE_PATH.put("resources/icons/smiles/fuck.gif"     , ":fuck");
+		    	SMILE_PATH.put("resources/icons/smiles/idea.gif"     , ":idea");
+		    	SMILE_PATH.put("resources/icons/smiles/lamzalo.gif"	 , ":lamzalo");
+		    	SMILE_PATH.put("resources/icons/smiles/lol.gif"      , ":lol");
+		    	SMILE_PATH.put("resources/icons/smiles/redface.gif"	 , ":redface");
+		    	SMILE_PATH.put("resources/icons/smiles/sad.gif"	     , ":sad");
+		    	SMILE_PATH.put("resources/icons/smiles/smile.gif" 	 , ":smile");
+		    	SMILE_PATH.put("resources/icons/smiles/surprised.gif", ":surprised");
+		    	SMILE_PATH.put("resources/icons/smiles/wink.gif"	 , ":wink");
+		       	SMILE_PATH.put("resources/icons/smiles/xz.gif"       , ":xz");
+	    		
+		      	SMILE_NAME.put(":D", "resources/icons/smiles/biggrin.gif");
+	    		SMILE_NAME.put(":crazy", "resources/icons/smiles/crazy.gif");
+	    		SMILE_NAME.put(":exclaim", "resources/icons/smiles/exclaim.gif");
+	    		SMILE_NAME.put(":fuck", "resources/icons/smiles/fuck.gif");
+	    		SMILE_NAME.put(":idea", "resources/icons/smiles/idea.gif");
+	    		SMILE_NAME.put(":lamzalo", "resources/icons/smiles/lamzalo.gif");
+	    		SMILE_NAME.put(":lol", "resources/icons/smiles/lol.gif");
+	    		SMILE_NAME.put(":redface", "resources/icons/smiles/redface.gif");
+	    		SMILE_NAME.put(":sad", "resources/icons/smiles/sad.gif");
+	    		SMILE_NAME.put(":smile", "resources/icons/smiles/smile.gif");
+	    		SMILE_NAME.put(":surprised", "resources/icons/smiles/surprised.gif");
+	    		SMILE_NAME.put(":wink", "resources/icons/smiles/wink.gif");
+	    		SMILE_NAME.put(":xz", "resources/icons/smiles/xz.gif");
+	    	}
+	    	
+    	private JPanel  contentPane;
+    	private JPanel  smilePane;
+    	private JPanel  okPane;
+    	private JButton okButton;
+    	
+    	public Smiles(){
+    		
+    		setLayout(new BorderLayout());
+    		
+    		contentPane = new JPanel();
+    		contentPane.setLayout(new BorderLayout());
+    		
+    		smilePane = new JPanel();
+    		smilePane.setLayout(new FlowLayout());
+    		
+    		okPane = new JPanel();
+    		okPane.setLayout(new BorderLayout());
+    		okPane.setPreferredSize(new Dimension(50,30));
+    		
+    		okButton = new JButton("OK");
+    		okButton.addActionListener(new ActionListener() {
+    			
+    			@Override
+    			public void actionPerformed(ActionEvent e) {
+    				setVisible(false);
+    				
+    			}
+    		});
+    		
+    		okPane.add(okButton);
+    		
+    		String[] names = getSmileNames();
+    		
+    		for (int count = 0; count < names.length; count++) {
+    			
+    			final JButton smile = new JButton();
+    			smile.setPreferredSize(new Dimension(50,50));
+    			smile.setIcon(new ImageIcon(ICONS_PATH + SMILES_PATH + names[count]));
+    			smile.addActionListener(new ActionListener() {
+    				@Override
+    				public void actionPerformed(ActionEvent e) {
+    					messageBox.append(SMILE_PATH.get(smile.getIcon().toString().trim()) + " ");
+    				}
+    			});
+    			
+    			smilePane.add(smile);
+    			
+    		}
+    		
+    		contentPane.add(smilePane, BorderLayout.CENTER);
+    		contentPane.add(okPane, BorderLayout.SOUTH);
+    		add(contentPane);
+    		
+    		setDefaultCloseOperation(EXIT_ON_CLOSE);
+    		setSize(300, 300);
+    		setVisible(true);
+    	}
+
+
+    	private String[] getSmileNames() {
+    		File listFile = new File(ICONS_PATH + SMILES_PATH);
+    		File exportFiles[] = listFile.listFiles();
+    		String[] names = new String[exportFiles.length];
+    		for (int i = 0; i < names.length; i++) {
+    			String fileName = exportFiles[i].getName();
+    			if (fileName.endsWith(".gif")){
+    				names[i] = fileName;
+    			}
+    			
+    		}
+    		return names;
+    	}
+    	
+    }
+    
     }
