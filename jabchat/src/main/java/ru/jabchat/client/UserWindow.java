@@ -1,6 +1,5 @@
 package ru.jabchat.client;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,6 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 import ru.jabchat.server.model.UserModel;
 
@@ -64,5 +62,3 @@ public class UserWindow {
 	}
 	
 }
-
-

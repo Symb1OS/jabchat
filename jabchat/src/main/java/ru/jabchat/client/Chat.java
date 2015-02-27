@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -181,14 +182,13 @@ public class Chat {
     
     public void preDisplay() {
        
+    	Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
+    	chatFrame.setIconImage(im);
+    	
     	chatFrame.setMinimumSize(new Dimension(300, 200));
     	chatFrame.setVisible(false);
-        loginFrame = new JFrame(APPLICATION_NAME);
-        
-        Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
-       
-        loginFrame.setIconImage(im);
-        chatFrame.setIconImage(im);
+      
+    	loginFrame = new JFrame(APPLICATION_NAME);
         
         JLabel chooseUsernameLabel = new JLabel("Pick a username:");
         JButton enterServer = new JButton("Login in server");
@@ -199,7 +199,8 @@ public class Chat {
             	System.out.println(  userColor.getRGB()  );
                 settings.setMyColor(userColor);
             	if (userColor == null){
-            		userColor = Color.BLUE;
+            		Random random = new Random();
+            		userColor = new Color(random.nextInt(65535));//Color.BLUE;
             	}
               }
           });
@@ -251,7 +252,6 @@ public class Chat {
 				chatBox.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
-	
     
 	private class TextClickListener extends MouseAdapter {
 		public void mouseClicked(MouseEvent e) {
@@ -418,7 +418,6 @@ public class Chat {
     class selectSmileButtonListener implements ActionListener {
     	@Override
     	public void actionPerformed(ActionEvent e) {
-    		
     		Smiles smiles = new Smiles();
 
     	}
@@ -726,7 +725,7 @@ public class Chat {
 		private String url;
 
         URLLinkAction(String bac){
-             url=bac;
+             url = bac;
         }
 
            protected void execute() {
@@ -786,19 +785,19 @@ public class Chat {
 		    	SMILE_PATH.put("resources/icons/smiles/wink.gif"	 , ":wink");
 		       	SMILE_PATH.put("resources/icons/smiles/xz.gif"       , ":xz");
 	    		
-		      	SMILE_NAME.put(":D", "resources/icons/smiles/biggrin.gif");
-	    		SMILE_NAME.put(":crazy", "resources/icons/smiles/crazy.gif");
-	    		SMILE_NAME.put(":exclaim", "resources/icons/smiles/exclaim.gif");
-	    		SMILE_NAME.put(":fuck", "resources/icons/smiles/fuck.gif");
-	    		SMILE_NAME.put(":idea", "resources/icons/smiles/idea.gif");
-	    		SMILE_NAME.put(":lamzalo", "resources/icons/smiles/lamzalo.gif");
-	    		SMILE_NAME.put(":lol", "resources/icons/smiles/lol.gif");
-	    		SMILE_NAME.put(":redface", "resources/icons/smiles/redface.gif");
-	    		SMILE_NAME.put(":sad", "resources/icons/smiles/sad.gif");
-	    		SMILE_NAME.put(":smile", "resources/icons/smiles/smile.gif");
+		      	SMILE_NAME.put(":D"	 	   , "resources/icons/smiles/biggrin.gif");
+	    		SMILE_NAME.put(":crazy"    , "resources/icons/smiles/crazy.gif");
+	    		SMILE_NAME.put(":exclaim"  , "resources/icons/smiles/exclaim.gif");
+	    		SMILE_NAME.put(":fuck"     , "resources/icons/smiles/fuck.gif");
+	    		SMILE_NAME.put(":idea"	   , "resources/icons/smiles/idea.gif");
+	    		SMILE_NAME.put(":lamzalo"  , "resources/icons/smiles/lamzalo.gif");
+	    		SMILE_NAME.put(":lol"	   , "resources/icons/smiles/lol.gif");
+	    		SMILE_NAME.put(":redface"  , "resources/icons/smiles/redface.gif");
+	    		SMILE_NAME.put(":sad"	   , "resources/icons/smiles/sad.gif");
+	    		SMILE_NAME.put(":smile"    , "resources/icons/smiles/smile.gif");
 	    		SMILE_NAME.put(":surprised", "resources/icons/smiles/surprised.gif");
-	    		SMILE_NAME.put(":wink", "resources/icons/smiles/wink.gif");
-	    		SMILE_NAME.put(":xz", "resources/icons/smiles/xz.gif");
+	    		SMILE_NAME.put(":wink"	   , "resources/icons/smiles/wink.gif");
+	    		SMILE_NAME.put(":xz"	   , "resources/icons/smiles/xz.gif");
 	    	}
 	    	
     	private JPanel  contentPane;
@@ -854,7 +853,6 @@ public class Chat {
     		contentPane.add(okPane, BorderLayout.SOUTH);
     		add(contentPane);
     		
-    		setDefaultCloseOperation(EXIT_ON_CLOSE);
     		setSize(300, 300);
     		setVisible(true);
     	}
