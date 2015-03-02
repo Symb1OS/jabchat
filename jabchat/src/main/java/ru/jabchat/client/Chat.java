@@ -141,11 +141,10 @@ public class Chat {
 	private Style system;
 	private Style regularBlue;
 	
-	public EditorDocument doc;
-    public EditorDocument docEdit = new EditorDocument();
+	private EditorDocument doc;
 	
-	public JTextPane textPane;
-	public JScrollPane scrollPane;
+	private JTextPane textPane;
+	private JScrollPane scrollPane;
 	
 	private JPanel contentPane;
 	private JPanel titlePane;
@@ -176,9 +175,6 @@ public class Chat {
     
     public static void main(String[] args) {
     	
-       //Chat chat = new Chat();
-       //chat.preDisplay();
-        
        SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -206,6 +202,7 @@ public class Chat {
 		loginFrame.setSize(240, 230);
 		loginFrame.setResizable(false);
 		loginFrame.setVisible(true);
+		loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	
     	contentPane = new JPanel();
     	contentPane.setBackground(Color.BLACK);
@@ -295,7 +292,6 @@ public class Chat {
 
 		loginFrame.add(contentPane, BorderLayout.CENTER);
 		
-	
     }
     
     private class TextMotionListener extends MouseInputAdapter {
@@ -383,6 +379,8 @@ public class Chat {
         messageBox.setFont(font);
         messageBox.setBorder(border);
         messageBox.requestFocusInWindow();
+    	messageBox.setLineWrap(true);
+		messageBox.setWrapStyleWord(false);
         messageBox.addKeyListener(new KeyAdapter() {
       	  public void keyPressed(KeyEvent e) {
       		  int keyPressed = e.getKeyCode();
@@ -479,8 +477,19 @@ public class Chat {
     class selectSmileButtonListener implements ActionListener {
     	@Override
     	public void actionPerformed(ActionEvent e) {
-    		Smiles smiles = new Smiles();
-
+    		
+    		SwingUtilities.invokeLater(new Runnable() {
+    	            @Override
+    	            public void run() {
+    	                try {
+    	                    UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName());
+    	                } catch (Exception e) {
+    	                    e.printStackTrace();
+    	                }
+    	              
+    	            	Smiles smiles = new Smiles();
+    	            }
+    	        });
     	}
     }
     
