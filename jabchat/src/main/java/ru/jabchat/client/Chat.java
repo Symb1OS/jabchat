@@ -238,10 +238,23 @@ public class Chat {
   		});
 		
 		changeColor = new JButton();
-		changeColor.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 1));
+		changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		changeColor.setBackground(Color.BLACK);
 		changeColor.setContentAreaFilled(false);
 		changeColor.setIcon(new ImageIcon(ICONS_PATH + "usercolor.png"));
+		changeColor.addMouseListener(new MouseAdapter() {
+				
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					changeColor.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+				}
+			
+				@Override
+				public void mouseExited(MouseEvent e) {
+					changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+				}
+				
+			});
 		changeColor.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
             	userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
@@ -261,8 +274,23 @@ public class Chat {
 		enterServer.setIcon(new ImageIcon(ICONS_PATH + "login.png"));
 		enterServer.setBackground(Color.BLACK);
 		enterServer.setContentAreaFilled(false);
-		enterServer.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 1));
 		enterServer.addActionListener(new enterServerButtonListener());
+		enterServer.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				enterServer.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+				
+			}
+		
+			@Override
+			public void mouseExited(MouseEvent e) {
+				enterServer.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+				
+			}
+			
+		});
+		
 		
 		settingPane.add(usernamePanel, BorderLayout.CENTER);
 		settingPane.add(changeColor, BorderLayout.SOUTH);
