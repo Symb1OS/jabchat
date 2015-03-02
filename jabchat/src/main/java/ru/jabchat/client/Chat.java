@@ -87,7 +87,7 @@ import ru.jabchat.utils.StringCrypter;
 
 public class Chat {
 
-	public static final String APPLICATION_NAME  =  "Vasya&Fedya Production";
+	public static final String APPLICATION_NAME  =  "JabChat 0.1";
 	
 	private static final String ICONS_PATH 		 =  "resources/icons/";
 	private static final String SMILES_PATH      =  "smiles/";
@@ -125,41 +125,38 @@ public class Chat {
 	  
 	private static JFrame chatFrame    = new JFrame(APPLICATION_NAME);
 	private JFrame loginFrame;
-	private JButton sendMessage;
-	
-	private Settings settings = new Settings(); 
-//	private JButton changeColor;
-	private JButton smilesButton;
-	
-	private Color userColor = Color.BLACK;
 	
 	private static JTextArea  messageBox;
 	private JTextPane chatBox;
-	//private JTextField usernameChooser = new JTextField(15);
-
-	private StyleContext sc;
-	private Style system;
-	private Style regularBlue;
+	private JTextPane textPane;
 	
 	private EditorDocument doc;
-	
-	private JTextPane textPane;
-	private JScrollPane scrollPane;
 	
 	private JPanel contentPane;
 	private JPanel titlePane;
 	private JPanel loginPane;
 	private JPanel settingPane;
+	private JPanel usernamePanel;
+	
+	private JScrollPane scrollPane;
+	
+	private JButton sendMessage;
+	private JButton smilesButton;
+	private JButton changeColor;
+	private JButton enterServer;
 	
 	private JTextField usernameChooser;
+	
 	private JLabel     chooseUsernameLabel;
-
-	private JButton changeColor;
-
-	private JButton enterServer;
-
-	private JPanel usernamePanel;
-
+	
+	private StyleContext sc;
+	private Style system;
+	private Style regularBlue;
+	
+	private Color userColor = Color.BLACK;
+	
+	private Settings settings = new Settings(); 
+	
 	private Style getUserStyle(int color){
     	if(color == 0)
     		return  system;
@@ -391,7 +388,8 @@ public class Chat {
       	    }
 		});
 
-        sendMessage = new JButton("Send");
+        sendMessage = new JButton();
+        sendMessage.setIcon(new ImageIcon(ICONS_PATH + "send.png"));
         sendMessage.setPreferredSize(new Dimension(80, 35));
         sendMessage.addActionListener(new sendMessageButtonListener());
         
@@ -674,7 +672,6 @@ public class Chat {
 		}
     }
     
-    
     public void enterChat(){
     	
     	if(settings.isNull()){
@@ -926,7 +923,6 @@ public class Chat {
     		setSize(300, 300);
     		setVisible(true);
     	}
-
 
     	private String[] getSmileNames() {
     		File listFile = new File(ICONS_PATH + SMILES_PATH);
