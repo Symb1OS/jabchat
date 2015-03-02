@@ -3,16 +3,10 @@ package ru.jabchat.client;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +14,8 @@ import javax.swing.JTextField;
 
 public class LoginFrame extends JFrame {
 	
+	private static final long serialVersionUID = 1L;
+
 	private static final String ICONS_PATH 		 =  "resources/icons/";
 	
 	private JPanel contentPane;
@@ -31,9 +27,8 @@ public class LoginFrame extends JFrame {
 	private JLabel     chooseUsernameLabel;
 
 	private JButton changeColor;
-
 	private JButton enterServer;
-
+	
 	private JPanel usernamePanel;
 	
 	public LoginFrame(){

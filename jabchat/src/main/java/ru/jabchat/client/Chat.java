@@ -7,10 +7,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
@@ -131,14 +128,14 @@ public class Chat {
 	private JButton sendMessage;
 	
 	private Settings settings = new Settings(); 
-	private JButton changeColor;
+//	private JButton changeColor;
 	private JButton smilesButton;
 	
 	private Color userColor = Color.BLACK;
 	
 	private static JTextArea  messageBox;
 	private JTextPane chatBox;
-	private JTextField usernameChooser = new JTextField(15);
+	//private JTextField usernameChooser = new JTextField(15);
 
 	private StyleContext sc;
 	private Style system;
@@ -149,6 +146,20 @@ public class Chat {
 	
 	public JTextPane textPane;
 	public JScrollPane scrollPane;
+	
+	private JPanel contentPane;
+	private JPanel titlePane;
+	private JPanel loginPane;
+	private JPanel settingPane;
+	
+	private JTextField usernameChooser;
+	private JLabel     chooseUsernameLabel;
+
+	private JButton changeColor;
+
+	private JButton enterServer;
+
+	private JPanel usernamePanel;
 
 	private Style getUserStyle(int color){
     	if(color == 0)
@@ -182,45 +193,43 @@ public class Chat {
     
     public void preDisplay() {
        
-    	Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
-    	chatFrame.setIconImage(im);
-    	
-    	chatFrame.setMinimumSize(new Dimension(300, 200));
-    	chatFrame.setVisible(false);
-      
     	loginFrame = new JFrame(APPLICATION_NAME);
-        
-        JLabel chooseUsernameLabel = new JLabel("Pick a username:");
-        JButton enterServer = new JButton("Login in server");
-        changeColor = new JButton("Choose user color");
-        changeColor.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-            	userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
-            	System.out.println(  userColor.getRGB()  );
-                settings.setMyColor(userColor);
-            	if (userColor == null){
-            		Random random = new Random();
-            		userColor = new Color(random.nextInt(65535));//Color.BLUE;
-            	}
-              }
-          });
-
-        enterServer.addActionListener(new enterServerButtonListener());
-        
-        JPanel prePanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints preRight = new GridBagConstraints();
-        preRight.insets = new Insets(0, 0, 0, 10);
-        preRight.anchor = GridBagConstraints.EAST;
-        
-        GridBagConstraints preLeft = new GridBagConstraints();
-        preLeft.anchor = GridBagConstraints.WEST;
-        preLeft.insets = new Insets(0, 0, 0, 10);
-        
-        preRight.fill = GridBagConstraints.HORIZONTAL;
-        preRight.gridwidth = GridBagConstraints.REMAINDER;
-        
-        usernameChooser.addKeyListener(new KeyAdapter() {
+    
+    	Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
+    	loginFrame.setIconImage(im);
+    	
+    	loginFrame.setBounds(600, 300, 1000, 400);
+		loginFrame.setLayout(new BorderLayout());
+		loginFrame.setSize(240, 230);
+		loginFrame.setResizable(false);
+		loginFrame.setVisible(true);
+    	
+    	contentPane = new JPanel();
+    	contentPane.setBackground(Color.BLACK);
+		contentPane.setLayout(new BorderLayout());
+		
+		titlePane = new JPanel();
+		titlePane.setLayout(new BorderLayout());
+		
+		JLabel title = new JLabel();
+		title.setIcon(new ImageIcon(ICONS_PATH + "title.gif"));
+		
+		titlePane.add(title,BorderLayout.CENTER);
+		
+		settingPane = new JPanel();
+		settingPane.setLayout(new BorderLayout());
+		
+		usernamePanel = new JPanel();
+		usernamePanel.setLayout(new FlowLayout());
+		
+		chooseUsernameLabel = new JLabel();
+		chooseUsernameLabel.setIcon(new ImageIcon(ICONS_PATH + "choose.png"));
+		
+		usernameChooser = 	new JTextField(10);
+		usernameChooser.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
+		usernameChooser.setForeground(Color.BLACK);
+		usernameChooser.setBackground(new Color(180, 156, 99));
+		usernameChooser.addKeyListener(new KeyAdapter() {
         	  public void keyPressed(KeyEvent e) {
         		  int keyPressed = e.getKeyCode();
         		  boolean isEnter = keyPressed == 10;
@@ -229,17 +238,56 @@ public class Chat {
         		  }
         	    }
   		});
-        
-        prePanel.add(chooseUsernameLabel, preLeft);
-        prePanel.add(usernameChooser, preRight);
-        
-        loginFrame.add(BorderLayout.NORTH, changeColor);
-        loginFrame.add(BorderLayout.CENTER, prePanel);
-        loginFrame.add(BorderLayout.SOUTH, enterServer);
-        
-        loginFrame.setSize(300, 300);
-        loginFrame.setVisible(true);
+		
+		changeColor = new JButton();
+		changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
+		changeColor.setBackground(Color.BLACK);
+		changeColor.setIcon(new ImageIcon(ICONS_PATH + "usercolor.png"));
+		changeColor.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+            	userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
+                settings.setMyColor(userColor);
+            	if (userColor == null){
+            		Random random = new Random();
+            		userColor = new Color(random.nextInt(65535));
+            	}
+              }
+          });
+		
+		
+		usernamePanel.add(chooseUsernameLabel);
+		usernamePanel.add(usernameChooser);
+		
+	    enterServer = new JButton();
+		enterServer.setIcon(new ImageIcon(ICONS_PATH + "login.png"));
+		enterServer.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+		enterServer.addActionListener(new enterServerButtonListener());
+		
+		settingPane.add(usernamePanel, BorderLayout.CENTER);
+		settingPane.add(changeColor, BorderLayout.SOUTH);
+		settingPane.setBackground(Color.BLACK);
+		
+		JLabel probel = new JLabel();
+		
+		loginPane = new JPanel();
+		loginPane.setBackground(Color.BLACK);
+		loginPane.setLayout(new BorderLayout());
+		loginPane.add(probel, BorderLayout.NORTH);
+		loginPane.add(enterServer, BorderLayout.CENTER);
+		
+		titlePane.setBackground(Color.BLACK);
+		usernamePanel.setBackground(Color.BLACK);
+		contentPane.add(titlePane, BorderLayout.NORTH);
+		contentPane.add(settingPane, BorderLayout.CENTER);
+		contentPane.add(loginPane, BorderLayout.SOUTH);
+		
+		titlePane.setBackground(Color.BLACK);
+		settingPane.setBackground(Color.BLACK);
+		usernamePanel.setBackground(Color.BLACK);
+		loginPane.setBackground(Color.BLACK);
 
+		loginFrame.add(contentPane, BorderLayout.CENTER);
+	
     }
     
     private class TextMotionListener extends MouseInputAdapter {
@@ -298,6 +346,11 @@ public class Chat {
     }
 	
     public void display() {
+    	
+    	Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
+    	chatFrame.setIconImage(im);
+    	chatFrame.setMinimumSize(new Dimension(300, 200));
+    	chatFrame.setVisible(false);
     	
     	rowCount = currentCntRow = chatDao.getLastRow();
       
@@ -873,5 +926,5 @@ public class Chat {
     	}
     	
     }
-    
-    }
+
+   }
