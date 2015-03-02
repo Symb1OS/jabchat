@@ -47,8 +47,6 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -79,6 +77,7 @@ import ru.jabchat.server.dao.UserDao;
 import ru.jabchat.server.model.ChatModel;
 import ru.jabchat.server.model.UserModel;
 import ru.jabchat.utils.Config;
+import ru.jabchat.utils.Converter;
 import ru.jabchat.utils.EditorDocument;
 import ru.jabchat.utils.Notification;
 import ru.jabchat.utils.ObjectRecorder;
@@ -409,9 +408,13 @@ public class Chat {
       	  public void keyPressed(KeyEvent e) {
       		  int keyPressed = e.getKeyCode();
       		  boolean isEnter = keyPressed == 10;
+      		  boolean needTranslate = (keyPressed == 82) && e.isControlDown();
       		  if (isEnter){
       			  sendMessage();
-      		  }
+      		  }else if (needTranslate) {
+      			  String tmp = messageBox.getText();
+				  messageBox.setText(Converter.engToRu(tmp));
+			}
       	    }
 		});
 
