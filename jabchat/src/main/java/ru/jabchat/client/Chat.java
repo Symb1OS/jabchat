@@ -176,7 +176,10 @@ public class Chat {
     
     public static void main(String[] args) {
     	
-        SwingUtilities.invokeLater(new Runnable() {
+       //Chat chat = new Chat();
+       //chat.preDisplay();
+        
+       SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -225,7 +228,8 @@ public class Chat {
 		chooseUsernameLabel = new JLabel();
 		chooseUsernameLabel.setIcon(new ImageIcon(ICONS_PATH + "choose.png"));
 		
-		usernameChooser = 	new JTextField(10);
+		usernameChooser = 	new JTextField(12);
+		usernameChooser.setHorizontalAlignment(JTextField.CENTER);
 		usernameChooser.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
 		usernameChooser.setForeground(Color.BLACK);
 		usernameChooser.setBackground(new Color(180, 156, 99));
@@ -240,8 +244,9 @@ public class Chat {
   		});
 		
 		changeColor = new JButton();
-		changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
+		changeColor.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 1));
 		changeColor.setBackground(Color.BLACK);
+		changeColor.setContentAreaFilled(false);
 		changeColor.setIcon(new ImageIcon(ICONS_PATH + "usercolor.png"));
 		changeColor.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -260,7 +265,9 @@ public class Chat {
 		
 	    enterServer = new JButton();
 		enterServer.setIcon(new ImageIcon(ICONS_PATH + "login.png"));
-		enterServer.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+		enterServer.setBackground(Color.BLACK);
+		enterServer.setContentAreaFilled(false);
+		enterServer.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 1));
 		enterServer.addActionListener(new enterServerButtonListener());
 		
 		settingPane.add(usernamePanel, BorderLayout.CENTER);
@@ -287,6 +294,7 @@ public class Chat {
 		loginPane.setBackground(Color.BLACK);
 
 		loginFrame.add(contentPane, BorderLayout.CENTER);
+		
 	
     }
     
