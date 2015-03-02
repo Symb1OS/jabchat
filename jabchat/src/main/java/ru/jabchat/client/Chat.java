@@ -153,7 +153,7 @@ public class Chat {
 	private Style system;
 	private Style regularBlue;
 	
-	private Color userColor = Color.BLACK;
+	private Color userColor;// = Color.BLACK;
 	
 	private Settings settings = new Settings(); 
 	
@@ -230,7 +230,7 @@ public class Chat {
 		usernameChooser.addKeyListener(new KeyAdapter() {
         	  public void keyPressed(KeyEvent e) {
         		  int keyPressed = e.getKeyCode();
-        		  boolean isEnter = keyPressed == 10;
+        		  boolean isEnter = (keyPressed == 10);
         		  if (isEnter){
         			enterChat();
         		  }
@@ -265,7 +265,6 @@ public class Chat {
             	}
               }
           });
-		
 		
 		usernamePanel.add(chooseUsernameLabel);
 		usernamePanel.add(usernameChooser);
@@ -480,14 +479,9 @@ public class Chat {
 		});
         
         JPanel allContent = new JPanel();
-        allContent.setLayout(new BoxLayout(allContent, BoxLayout.LINE_AXIS));
-        allContent.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        
-        allContent.add(Box.createHorizontalGlue());
-        allContent.add(mainPanel);
-        
-        allContent.add(Box.createRigidArea(new Dimension(5, 5)));
-        allContent.add(userWin.getWindow());
+        allContent.setLayout(new BorderLayout());
+        allContent.add(mainPanel, BorderLayout.CENTER);
+        allContent.add(userWin.getWindow(), BorderLayout.EAST);
         
         chatFrame.add(allContent);
         chatFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -517,6 +511,11 @@ public class Chat {
     	            }
     	        });
     	}
+    }
+    
+    private String parseMessage(String message){
+    	
+		return null;
     }
     
     private void sendMessage(){

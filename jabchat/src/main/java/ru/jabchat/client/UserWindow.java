@@ -16,7 +16,7 @@ public class UserWindow {
 	private TableModel tModel;
 	private Table table;
 	private JScrollPane pane;
-	private ArrayList data;
+	private ArrayList<UserModel> data;
 
 	
 	public UserWindow() {
@@ -31,7 +31,7 @@ public class UserWindow {
 		return pane;
 	}
 
-	public void refreshTable(List dataIn) {
+	public void refreshTable(List<UserModel> dataIn) {
 		this.data.clear();
 		this.data.addAll(dataIn);
 		tModel.fireTableDataChanged();
@@ -55,7 +55,7 @@ public class UserWindow {
 		this.table.getColumn("ip").setMaxWidth(90);
 		this.table.getColumn("ip").setCellRenderer(center);
 		
-		this.table.getColumn("Статус").setMaxWidth(50);
+		this.table.getColumn("Статус").setMinWidth(50);
 		this.table.getColumn("Статус").setMaxWidth(50);
 		this.table.getColumn("Статус").setCellRenderer(center);
 		
