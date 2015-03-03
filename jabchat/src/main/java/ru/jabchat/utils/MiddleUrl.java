@@ -95,7 +95,7 @@ public class MiddleUrl {
 	
 	public static void main(String[] args) {
 		
-		String middle = "www.google.ru и вот еще одна https://github.com/Symb1OS/jabchat/commit/4fd78617418c7c6daa216ba10d0c20e15d8a0bca dasdsadsa :lol www.dsadasdsad.gif";
+		String middle = "www.google.com нифига не смешно www.github.com";
 		
 		MiddleUrl middleUrl = new MiddleUrl(middle);
 			System.out.println(middleUrl.getPoints());

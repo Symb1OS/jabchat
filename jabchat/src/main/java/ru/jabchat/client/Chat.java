@@ -563,13 +563,20 @@ public class Chat {
 						String message = chatModel.getMessage();
 						Style style = getUserStyle( chatModel.getColor());
 						
-						if (isUrl(message)) {
-							checkAndPrint(timeSend, message, style);
-						}else if (MiddleUrl.isUrlMiddle(message)) {
+						if (isUrl(message) || MiddleUrl.isUrlMiddle(message)){
 							printMiddleUrl(timeSend, message, style);
 						}else {
 							printMessage(timeSend, message, style);
 						}
+						
+					/*	if (isUrl(message)) {
+							checkAndPrint(timeSend, message, style);
+						}else if (MiddleUrl.isUrlMiddle(message)) {
+							printMiddleUrl(timeSend, message, style);
+						}
+						else {
+							printMessage(timeSend, message, style);
+						}*/
 						
 					}catch(BadLocationException badLocationException){
 						badLocationException.printStackTrace();
@@ -590,27 +597,44 @@ public class Chat {
 			rowCount = currentCntRow;
 		}
 
-		private void printMiddleUrl(String sendTime, String message, Style style) throws BadLocationException {
+		private void printMiddleUrl(String sendTime, String message, Style style) throws BadLocationException, MalformedURLException, IOException {
 			
 			MiddleUrl middleUrl = new MiddleUrl(message);
 			List<UrlPoint> messages = middleUrl.getPoints();
 			
 			doc.insertString(doc.getLength(), sendTime + " - ",	style);
 			for (UrlPoint urlPoint : messages) {
+				
+				String messageUrl = urlPoint.getMessage();
+				messageUrl = messageUrl.trim();
+				
 				if(urlPoint.isUrl()){
-					regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(urlPoint.getMessage()));
-					doc.insertString(doc.getLength(), urlPoint.getMessage() , regularBlue);
+					
+					int posFormat = messageUrl.lastIndexOf(".");
+					String format = messageUrl.substring(posFormat, messageUrl.length()).toLowerCase();
+					
+					boolean isPicture = PICTURE_FORMAT.contains(format);
+					if (isPicture) {
+						printPicture(sendTime, style, messageUrl, format);
+					}else {
+						regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(messageUrl));
+						doc.insertString(doc.getLength(), messageUrl + " ", regularBlue);
+					}
+					
 				}else {
-					printMessage(sendTime, urlPoint.getMessage(), style);
+					printMessage(sendTime, messageUrl, style);
 				}
 			}
 			
 			doc.insertString(doc.getLength(), "\n",	style);
 		}
 
+		@SuppressWarnings("unused")
 		private void checkAndPrint(String sendTime, String message, Style style)
 				throws IOException, MalformedURLException, BadLocationException {
 
+			doc.insertString(doc.getLength(), sendTime + " - " , style);
+			
 			String urlString = message;
 			regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(message));
 
@@ -634,7 +658,7 @@ public class Chat {
 				doc.insertString(doc.getLength(), sendTime + " - " + message + "\n", style);
 			}else{
 				
-					doc.insertString(doc.getLength(), sendTime + " - " , style);
+					//doc.insertString(doc.getLength(), sendTime + " - " , style);
 					
 					boolean smileExist = isSmilesExist(message);
 					if(smileExist){
@@ -652,7 +676,7 @@ public class Chat {
 					}else {
 						doc.insertString(doc.getLength(), message + " ", style);
 					}
-					doc.insertString(doc.getLength(), "\n", style);
+					//doc.insertString(doc.getLength(), "\n", style);
 			}
 			
 		}
@@ -667,12 +691,13 @@ public class Chat {
 				String format) throws IOException, MalformedURLException,
 				BadLocationException {
 			
+			System.out.println("printPicture");
 			Config.setProxy();
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 			InputStream inStream = httpConn.getInputStream();
 			ImageIcon imageIcon = getImageIcon(format, inStream);
 			
-			doc.insertString(doc.getLength(), sendTime + " - " + "\n", style);
+			//doc.insertString(doc.getLength(), sendTime + " - " + "\n", style);
 			doc.setIcon(doc.getLength(), " ", imageIcon);
 			doc.insertString(doc.getLength(), "\n", style);
 		}
