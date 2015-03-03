@@ -93,21 +93,4 @@ public class Converter {
 
 	}
 	
-	private static boolean isUrlMiddle(String message) {
-		
-		boolean isUrl = ( (!message.startsWith("www") && !message.startsWith("http"))  && (message.contains("www") || message.contains("http")));
-		if (isUrl){
-			return true;
-		}
-		return false;
-	}
-	
-	public static void main(String [] args){
-		String a = "dasd asd asd http: dasdasdasd";
-		System.out.println(isUrlMiddle(a));
-		
-		
-	}
-	
-
 }

@@ -79,10 +79,11 @@ import ru.jabchat.server.model.UserModel;
 import ru.jabchat.utils.Config;
 import ru.jabchat.utils.Converter;
 import ru.jabchat.utils.EditorDocument;
-import ru.jabchat.utils.Notification;
+import ru.jabchat.utils.MiddleUrl;
 import ru.jabchat.utils.ObjectRecorder;
 import ru.jabchat.utils.Settings;
 import ru.jabchat.utils.StringCrypter;
+import ru.jabchat.utils.UrlPoint;
 
 public class Chat {
 
@@ -508,6 +509,7 @@ public class Chat {
     	                }
     	              
     	            	Smiles smiles = new Smiles();
+    	            	smiles.view();
     	            }
     	        });
     	}
@@ -524,7 +526,7 @@ public class Chat {
             chatDao.insertMessage(chatModel);
             
             if (offUsersExist()){
-            	Notification notification = new Notification(user.getUserName(), messageBox.getText());
+            	//Notification notification = new Notification(user.getUserName(), messageBox.getText());
             	//notification.sendMail();
             }
             
@@ -563,6 +565,8 @@ public class Chat {
 						
 						if (isUrl(message)) {
 							checkAndPrint(timeSend, message, style);
+						}else if (MiddleUrl.isUrlMiddle(message)) {
+							printMiddleUrl(timeSend, message, style);
 						}else {
 							printMessage(timeSend, message, style);
 						}
@@ -586,26 +590,23 @@ public class Chat {
 			rowCount = currentCntRow;
 		}
 
-		//TODO впадлу мне, потом как - нибудь
-		
-		/*private void printMiddleLink(String timeSend, String message, Style style) {
-			String url = "";
+		private void printMiddleUrl(String sendTime, String message, Style style) throws BadLocationException {
 			
-			// Получаем количество ссылок содержащихся в сообщении 
-			// добавляем в док строку от начала до первой ссылки , вставляем ссылку в док ,
-			// получаемый конец ссылки , и циклим до количества ссыылок в сообщении
-			//
-			//
-		}
-		
-		private boolean isUrlMiddle(String message) {
+			MiddleUrl middleUrl = new MiddleUrl(message);
+			List<UrlPoint> messages = middleUrl.getPoints();
 			
-			boolean isUrl = ( (!message.startsWith("www") && !message.startsWith("http"))  && (message.contains("www") || message.contains("http")));
-			if (isUrl){
-				return true;
+			doc.insertString(doc.getLength(), sendTime + " - ",	style);
+			for (UrlPoint urlPoint : messages) {
+				if(urlPoint.isUrl()){
+					regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(urlPoint.getMessage()));
+					doc.insertString(doc.getLength(), urlPoint.getMessage() , regularBlue);
+				}else {
+					printMessage(sendTime, urlPoint.getMessage(), style);
+				}
 			}
-			return false;
-		}*/
+			
+			doc.insertString(doc.getLength(), "\n",	style);
+		}
 
 		private void checkAndPrint(String sendTime, String message, Style style)
 				throws IOException, MalformedURLException, BadLocationException {
@@ -878,12 +879,10 @@ public class Chat {
 		
     	public static final Map<String, String> SMILE_PATH = new HashMap<String, String>();
     	
-    	
     	 /**
          *
          *получаем имена смайликов, добавляем их в коллекцию под полной директорией 
          *и в значение ключа ставим их название с предстоящим двоеточием
-         *
          *Таким образом, чтобы добавить новые смайлики достаточно кинуть новые в папку с остальными смайлами
          */
     	public static final Map<String, String> SMILE_NAME = new HashMap<String, String>();
@@ -900,8 +899,8 @@ public class Chat {
 		    		}
 		    		
 		    		for (int countSmiles = 0; countSmiles < names.length; countSmiles++) {
-						SMILE_PATH.put(ICONS_PATH + SMILES_PATH + names[countSmiles], ":" + names[countSmiles]);
-						SMILE_NAME.put(":" + names[countSmiles], ICONS_PATH + SMILES_PATH + names[countSmiles]);
+						SMILE_PATH.put(ICONS_PATH + SMILES_PATH + names[countSmiles], ":" + names[countSmiles].replace(".gif", ""));
+						SMILE_NAME.put(":" + names[countSmiles].replace(".gif", ""), ICONS_PATH + SMILES_PATH + names[countSmiles]);
 					}
 	    		}
 	    	
@@ -910,7 +909,7 @@ public class Chat {
     	private JPanel  okPane;
     	private JButton okButton;
     	
-    	public Smiles(){
+    	private void view(){
     		
     		setLayout(new BorderLayout());
     		
@@ -960,6 +959,7 @@ public class Chat {
     		
     		setSize(600, 300);
     		setVisible(true);
+    		
     	}
     	
     	private String[] getSmileNames() {
