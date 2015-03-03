@@ -13,16 +13,9 @@ public class MiddleUrl {
 		String tempMessage = message.replaceAll("http://", "www.");
 		tempMessage = tempMessage.replaceAll("https://", "www.");
 		
-		int stuck = 0;
 		int index = 0;
 		while(true){
-			//System.out.println("=============================================");
-			stuck++;
-			if (stuck > 5) {
-			//	System.out.println("ЗАСТРЯЛИ!");
-				break;
-			}
-		
+
 			UrlPoint noUrlPoint = new UrlPoint();
 			UrlPoint urlPoint = new UrlPoint();
 			
@@ -35,7 +28,6 @@ public class MiddleUrl {
 			
 			if(tempMessage.indexOf("www", index) != 0){
 				noUrlPoint = new UrlPoint(startNoUrl, endNoUrl, tempMessage.substring(startNoUrl, endNoUrl), false);
-			//	System.out.println(noUrlPoint);
 				points.add(noUrlPoint);
 			}
 			
@@ -45,13 +37,11 @@ public class MiddleUrl {
 			boolean isEndUrl = (endUrl != -1);
 			if (isStartUrl && isEndUrl){
 				urlPoint = new UrlPoint(startUrl, endUrl, tempMessage.substring(startUrl, endUrl), true);
-				//System.out.println(urlPoint);
 				points.add(urlPoint);
 				index = endUrl;
 					
 			}else if ( (startUrl != -1) && (endUrl == -1)) {
 				urlPoint = new UrlPoint(startUrl, tempMessage.length(), tempMessage.substring(startUrl, tempMessage.length()), true);
-				//System.out.println(urlPoint);
 				points.add(urlPoint);
 				break;
 			}else {

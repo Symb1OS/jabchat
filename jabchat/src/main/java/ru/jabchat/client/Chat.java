@@ -71,6 +71,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import ru.jabchat.server.dao.ChatDao;
 import ru.jabchat.server.dao.UserDao;
@@ -235,6 +236,16 @@ public class Chat {
         		  }
         	    }
   		});
+			try {
+				String ip = InetAddress.getLocalHost().getHostAddress();
+				usernameChooser.setText(usersDao.getUser(crypter.encrypt(ip)).getUserName());
+				
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			} catch(EmptyResultDataAccessException emptyDsException){
+				usernameChooser.setText("");
+			}
+			
 		
 		changeColor = new JButton();
 		changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
