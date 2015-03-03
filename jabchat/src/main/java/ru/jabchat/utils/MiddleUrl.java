@@ -3,19 +3,7 @@ package ru.jabchat.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Общий процесс:
- * Получаем сообщение
- * Делаем проверку, то что ссылка не в самом начале, т.к такой случай уже проверяется
- * Получаем координаты начала и конца всех ссылок содержащихся в сообщении
- * Запускаем бесконечный цикл до тех пор пока не вставим все куски в док
- * Завершение по достижению конца строки 
- * 
- * Проблемы: ссылка может начинаться с www  или http
- * Если в конце сообщения ссылка проблема с отловом конца, 
- * т.к поиск идет от начала идентификатора до первого пробела, а его может не быть
- * 
- */
+
 public class MiddleUrl {
 	
 	private List<UrlPoint> points = new ArrayList<UrlPoint>();
@@ -25,15 +13,13 @@ public class MiddleUrl {
 		String tempMessage = message.replaceAll("http://", "www.");
 		tempMessage = tempMessage.replaceAll("https://", "www.");
 		
-		System.out.println(tempMessage);
-		
 		int stuck = 0;
 		int index = 0;
 		while(true){
-			System.out.println("=============================================");
+			//System.out.println("=============================================");
 			stuck++;
 			if (stuck > 5) {
-				System.out.println("ЗАСТРЯЛИ!");
+			//	System.out.println("ЗАСТРЯЛИ!");
 				break;
 			}
 		
@@ -49,7 +35,7 @@ public class MiddleUrl {
 			
 			if(tempMessage.indexOf("www", index) != 0){
 				noUrlPoint = new UrlPoint(startNoUrl, endNoUrl, tempMessage.substring(startNoUrl, endNoUrl), false);
-				System.out.println(noUrlPoint);
+			//	System.out.println(noUrlPoint);
 				points.add(noUrlPoint);
 			}
 			
@@ -59,13 +45,13 @@ public class MiddleUrl {
 			boolean isEndUrl = (endUrl != -1);
 			if (isStartUrl && isEndUrl){
 				urlPoint = new UrlPoint(startUrl, endUrl, tempMessage.substring(startUrl, endUrl), true);
-				System.out.println(urlPoint);
+				//System.out.println(urlPoint);
 				points.add(urlPoint);
 				index = endUrl;
 					
 			}else if ( (startUrl != -1) && (endUrl == -1)) {
 				urlPoint = new UrlPoint(startUrl, tempMessage.length(), tempMessage.substring(startUrl, tempMessage.length()), true);
-				System.out.println(urlPoint);
+				//System.out.println(urlPoint);
 				points.add(urlPoint);
 				break;
 			}else {
@@ -95,7 +81,7 @@ public class MiddleUrl {
 	
 	public static void main(String[] args) {
 		
-		String middle = "www.google.com нифига не смешно www.github.com";
+		String middle = "zazazazazaza fasdasd asdasdasda";
 		
 		MiddleUrl middleUrl = new MiddleUrl(middle);
 			System.out.println(middleUrl.getPoints());
