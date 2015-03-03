@@ -24,10 +24,10 @@ public class Config {
 	public static void setProxy() {
 
     	System.setProperty("java.net.useSystemProxies", "true");
-        System.setProperty("http.proxyHost", 	 "10.41.77.151");
-        System.setProperty("http.proxyPort",  	 "8080");
-        System.setProperty("http.proxyUser", 	 "dkx60pi");
-        System.setProperty("http.proxyPassword", "699GuH691");
+        System.setProperty("http.proxyHost", 	 	    "10.41.77.151");
+        System.setProperty("http.proxyPort",  			"8080");
+        System.setProperty("http.proxyUser", 	 		"dkx60pi");
+        System.setProperty("http.proxyPassword", 		"699GuH691");
 
 		Authenticator.setDefault(new Authenticator() {
 			public PasswordAuthentication getPasswordAuthentication() {

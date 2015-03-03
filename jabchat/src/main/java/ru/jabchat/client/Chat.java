@@ -137,7 +137,7 @@ public class Chat {
 	private JPanel settingPane;
 	private JPanel usernamePanel;
 	
-	private JScrollPane scrollPane;
+	private JScrollPane chatScrollPane;
 	
 	private JButton sendMessage;
 	private JButton smilesButton;
@@ -152,7 +152,7 @@ public class Chat {
 	private Style system;
 	private Style regularBlue;
 	
-	private Color userColor;// = Color.BLACK;
+	private Color userColor;
 	
 	private Settings settings = new Settings(); 
 	
@@ -167,7 +167,6 @@ public class Chat {
 	        return userStyle;
     	}
     }
-    
     
     public static void main(String[] args) {
     	
@@ -242,28 +241,27 @@ public class Chat {
 		changeColor.setContentAreaFilled(false);
 		changeColor.setIcon(new ImageIcon(ICONS_PATH + "usercolor.png"));
 		changeColor.addMouseListener(new MouseAdapter() {
-				
-				@Override
-				public void mouseEntered(MouseEvent e) {
-					changeColor.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				changeColor.setBorder(BorderFactory.createLineBorder(new Color(180, 156, 99), 3));
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+			}
+
+			public void mouseClicked(MouseEvent e) {
+				userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
+				settings.setMyColor(userColor);
+				if (userColor == null) {
+					Random random = new Random();
+					userColor = new Color(random.nextInt(65535));
 				}
-			
-				@Override
-				public void mouseExited(MouseEvent e) {
-					changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
-				}
+			}
 				
 			});
-		changeColor.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-            	userColor = JColorChooser.showDialog(loginFrame, "Цвет вашего текста", userColor);
-                settings.setMyColor(userColor);
-            	if (userColor == null){
-            		Random random = new Random();
-            		userColor = new Color(random.nextInt(65535));
-            	}
-              }
-          });
 		
 		usernamePanel.add(chooseUsernameLabel);
 		usernamePanel.add(usernameChooser);
@@ -288,7 +286,6 @@ public class Chat {
 			}
 			
 		});
-		
 		
 		settingPane.add(usernamePanel, BorderLayout.CENTER);
 		settingPane.add(changeColor, BorderLayout.SOUTH);
@@ -407,7 +404,7 @@ public class Chat {
         messageBox.addKeyListener(new KeyAdapter() {
       	  public void keyPressed(KeyEvent e) {
       		  int keyPressed = e.getKeyCode();
-      		  boolean isEnter = keyPressed == 10;
+      		  boolean isEnter = (keyPressed == 10);
       		  boolean needTranslate = (keyPressed == 82) && e.isControlDown();
       		  if (isEnter){
       			  sendMessage();
@@ -417,7 +414,7 @@ public class Chat {
 			}
       	    }
 		});
-
+        
         sendMessage = new JButton();
         sendMessage.setIcon(new ImageIcon(ICONS_PATH + "send.png"));
         sendMessage.setPreferredSize(new Dimension(80, 35));
@@ -430,7 +427,7 @@ public class Chat {
 
         this.textPane = new JTextPane(doc);
         this.textPane.setBackground(Color.WHITE);
-        this.scrollPane = new JScrollPane(textPane);   
+        this.chatScrollPane = new JScrollPane(textPane);   
         
         chatBox = new JTextPane(doc);
         chatBox.setEditable(false);
@@ -516,11 +513,6 @@ public class Chat {
     	}
     }
     
-    private String parseMessage(String message){
-    	
-		return null;
-    }
-    
     private void sendMessage(){
     	
         if (messageBox.getText().length() < 1) {
@@ -571,7 +563,7 @@ public class Chat {
 						
 						if (isUrl(message)) {
 							checkAndPrint(timeSend, message, style);
-						} else {
+						}else {
 							printMessage(timeSend, message, style);
 						}
 						
@@ -593,6 +585,27 @@ public class Chat {
 			}
 			rowCount = currentCntRow;
 		}
+
+		//TODO впадлу мне, потом как - нибудь
+		
+		/*private void printMiddleLink(String timeSend, String message, Style style) {
+			String url = "";
+			
+			// Получаем количество ссылок содержащихся в сообщении 
+			// добавляем в док строку от начала до первой ссылки , вставляем ссылку в док ,
+			// получаемый конец ссылки , и циклим до количества ссыылок в сообщении
+			//
+			//
+		}
+		
+		private boolean isUrlMiddle(String message) {
+			
+			boolean isUrl = ( (!message.startsWith("www") && !message.startsWith("http"))  && (message.contains("www") || message.contains("http")));
+			if (isUrl){
+				return true;
+			}
+			return false;
+		}*/
 
 		private void checkAndPrint(String sendTime, String message, Style style)
 				throws IOException, MalformedURLException, BadLocationException {
@@ -865,37 +878,32 @@ public class Chat {
 		
     	public static final Map<String, String> SMILE_PATH = new HashMap<String, String>();
     	
+    	
+    	 /**
+         *
+         *получаем имена смайликов, добавляем их в коллекцию под полной директорией 
+         *и в значение ключа ставим их название с предстоящим двоеточием
+         *
+         *Таким образом, чтобы добавить новые смайлики достаточно кинуть новые в папку с остальными смайлами
+         */
     	public static final Map<String, String> SMILE_NAME = new HashMap<String, String>();
 	    	static{
-	    		
-		    	SMILE_PATH.put("resources/icons/smiles/biggrin.gif"	 , ":D");
-		    	SMILE_PATH.put("resources/icons/smiles/crazy.gif"  	 , ":crazy");
-		    	SMILE_PATH.put("resources/icons/smiles/exclaim.gif"  , ":exclaim");
-		    	SMILE_PATH.put("resources/icons/smiles/fuck.gif"     , ":fuck");
-		    	SMILE_PATH.put("resources/icons/smiles/idea.gif"     , ":idea");
-		    	SMILE_PATH.put("resources/icons/smiles/lamzalo.gif"	 , ":lamzalo");
-		    	SMILE_PATH.put("resources/icons/smiles/lol.gif"      , ":lol");
-		    	SMILE_PATH.put("resources/icons/smiles/redface.gif"	 , ":redface");
-		    	SMILE_PATH.put("resources/icons/smiles/sad.gif"	     , ":sad");
-		    	SMILE_PATH.put("resources/icons/smiles/smile.gif" 	 , ":smile");
-		    	SMILE_PATH.put("resources/icons/smiles/surprised.gif", ":surprised");
-		    	SMILE_PATH.put("resources/icons/smiles/wink.gif"	 , ":wink");
-		       	SMILE_PATH.put("resources/icons/smiles/xz.gif"       , ":xz");
-	    		
-		      	SMILE_NAME.put(":D"	 	   , "resources/icons/smiles/biggrin.gif");
-	    		SMILE_NAME.put(":crazy"    , "resources/icons/smiles/crazy.gif");
-	    		SMILE_NAME.put(":exclaim"  , "resources/icons/smiles/exclaim.gif");
-	    		SMILE_NAME.put(":fuck"     , "resources/icons/smiles/fuck.gif");
-	    		SMILE_NAME.put(":idea"	   , "resources/icons/smiles/idea.gif");
-	    		SMILE_NAME.put(":lamzalo"  , "resources/icons/smiles/lamzalo.gif");
-	    		SMILE_NAME.put(":lol"	   , "resources/icons/smiles/lol.gif");
-	    		SMILE_NAME.put(":redface"  , "resources/icons/smiles/redface.gif");
-	    		SMILE_NAME.put(":sad"	   , "resources/icons/smiles/sad.gif");
-	    		SMILE_NAME.put(":smile"    , "resources/icons/smiles/smile.gif");
-	    		SMILE_NAME.put(":surprised", "resources/icons/smiles/surprised.gif");
-	    		SMILE_NAME.put(":wink"	   , "resources/icons/smiles/wink.gif");
-	    		SMILE_NAME.put(":xz"	   , "resources/icons/smiles/xz.gif");
-	    	}
+	 
+		    		File listFile = new File(ICONS_PATH + SMILES_PATH);
+		    		File exportFiles[] = listFile.listFiles();
+		    		String[] names = new String[exportFiles.length];
+		    		for (int i = 0; i < names.length; i++) {
+		    			String fileName = exportFiles[i].getName();
+		    			if (fileName.endsWith(".gif")){
+		    				names[i] = fileName;
+		    			}
+		    		}
+		    		
+		    		for (int countSmiles = 0; countSmiles < names.length; countSmiles++) {
+						SMILE_PATH.put(ICONS_PATH + SMILES_PATH + names[countSmiles], ":" + names[countSmiles]);
+						SMILE_NAME.put(":" + names[countSmiles], ICONS_PATH + SMILES_PATH + names[countSmiles]);
+					}
+	    		}
 	    	
     	private JPanel  contentPane;
     	private JPanel  smilePane;
@@ -950,10 +958,10 @@ public class Chat {
     		contentPane.add(okPane, BorderLayout.SOUTH);
     		add(contentPane);
     		
-    		setSize(300, 300);
+    		setSize(600, 300);
     		setVisible(true);
     	}
-
+    	
     	private String[] getSmileNames() {
     		File listFile = new File(ICONS_PATH + SMILES_PATH);
     		File exportFiles[] = listFile.listFiles();
