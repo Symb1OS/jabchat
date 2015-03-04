@@ -274,7 +274,7 @@ public class Chat {
 				}
 			}
 				
-			});
+		});
 		
 		usernamePanel.add(chooseUsernameLabel);
 		usernamePanel.add(usernameChooser);
@@ -599,11 +599,16 @@ public class Chat {
 		private String checkUrlValid(String message){
 		
 			String messageUrl = message.trim();
+			boolean isWww = messageUrl.indexOf("www") != -1;
+			boolean isNoHttp = messageUrl.indexOf("http") == -1;
 			boolean urlNotValid = messageUrl.indexOf("www.www") != -1;
+			
 			if(urlNotValid){
 				messageUrl= messageUrl.replaceAll("www.www", "http://www");
-			}else{
+			}else if (isNoHttp && isWww) {
 				messageUrl = messageUrl.replaceAll("www.", "http://");
+			}
+			else{
 			}
 			return messageUrl;
 			
@@ -619,7 +624,6 @@ public class Chat {
 				
 				String messageUrl = urlPoint.getMessage();
 				messageUrl = messageUrl.trim();
-				
 				if(urlPoint.isUrl()){
 					
 					int posFormat = messageUrl.lastIndexOf(".");
@@ -996,6 +1000,9 @@ public class Chat {
     		contentPane.add(okPane, BorderLayout.SOUTH);
     		add(contentPane);
     		
+    	  	Image im = Toolkit.getDefaultToolkit().getImage(ICONS_PATH + "smilefrane.png");
+        
+    	  	setIconImage(im);
     		setSize(640, 300);
     		setVisible(true);
     		
