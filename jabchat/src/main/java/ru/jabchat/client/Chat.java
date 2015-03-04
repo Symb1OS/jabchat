@@ -980,7 +980,7 @@ public class Chat {
     		contentPane.add(okPane, BorderLayout.SOUTH);
     		add(contentPane);
     		
-    		setSize(600, 300);
+    		setSize(640, 300);
     		setVisible(true);
     		
     	}
