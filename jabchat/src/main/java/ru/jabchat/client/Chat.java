@@ -627,6 +627,7 @@ public class Chat {
 					String format = messageUrl.substring(posFormat, messageUrl.length()).toLowerCase();
 					boolean isPicture = PICTURE_FORMAT.contains(format);
 					if (isPicture) {
+						messageUrl = checkUrlValid(messageUrl);
 						doc.insertString(doc.getLength(), "\n",	style);
 						printPicture(sendTime, style, messageUrl, format);
 					}else {
