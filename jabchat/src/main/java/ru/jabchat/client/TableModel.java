@@ -70,25 +70,11 @@ public class TableModel extends AbstractTableModel{
 				status.setForeground( new Color( -6750157 ));
 			return status;
 			
-			//return new JLabel( data.get(row).getStatus() );
 		case 3 :
 			return new JLabel( data.get(row).getIp() );
 		default : 
 			return new JLabel();
 		}
 	}
-	
-//	@Override
-//	public Object getValueAt(int row, int cell) {
-//		switch (cell){
-//		case 0 : 
-//			return data.get(row).getUserName();
-//		case 1 :
-//			return data.get(row).getIp();
-//		case 2 :
-//			return data.get(row).getStatus();
-//		default : 
-//			return "";
-//	}
 
 }

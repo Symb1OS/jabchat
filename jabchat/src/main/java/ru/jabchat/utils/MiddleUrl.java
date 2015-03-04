@@ -10,38 +10,41 @@ public class MiddleUrl {
 	
 	public MiddleUrl(String message){
 		
-		String tempMessage = message.replaceAll("http://", "www.");
-		tempMessage = tempMessage.replaceAll("https://", "www.");
+		String sourceMessage = message.replaceAll("http://", "www.");
+		sourceMessage = sourceMessage.replaceAll("https://", "www.");
 		
 		int index = 0;
 		while(true){
-
+			
 			UrlPoint noUrlPoint = new UrlPoint();
 			UrlPoint urlPoint = new UrlPoint();
 			
 			int startNoUrl  = index;
-			int endNoUrl = tempMessage.indexOf("www", index);
+			int endNoUrl = sourceMessage.indexOf("www", index);
 			
-			if(endNoUrl == -1){
-				endNoUrl = tempMessage.length();
+			boolean noLinks = endNoUrl == -1; 
+			if( noLinks){
+				endNoUrl = sourceMessage.length();
 			}
 			
-			if(tempMessage.indexOf("www", index) != 0){
-				noUrlPoint = new UrlPoint(startNoUrl, endNoUrl, tempMessage.substring(startNoUrl, endNoUrl), false);
+			boolean beginNotWww = sourceMessage.indexOf("www", index) != 0; 
+			if( beginNotWww ){
+				noUrlPoint = new UrlPoint(startNoUrl, endNoUrl, sourceMessage.substring(startNoUrl, endNoUrl), false);
 				points.add(noUrlPoint);
 			}
 			
-			int startUrl = tempMessage.indexOf("www", index);	
-			int endUrl = tempMessage.indexOf(" ", startUrl); 
+			int startUrl = sourceMessage.indexOf("www", index);	
+			int endUrl = sourceMessage.indexOf(" ", startUrl); 
 			boolean isStartUrl = (startUrl != -1);
 			boolean isEndUrl = (endUrl != -1);
+			boolean isEndStr = (startUrl != -1) && (endUrl == -1); 
 			if (isStartUrl && isEndUrl){
-				urlPoint = new UrlPoint(startUrl, endUrl, tempMessage.substring(startUrl, endUrl), true);
+				urlPoint = new UrlPoint(startUrl, endUrl, sourceMessage.substring(startUrl, endUrl), true);
 				points.add(urlPoint);
 				index = endUrl;
 					
-			}else if ( (startUrl != -1) && (endUrl == -1)) {
-				urlPoint = new UrlPoint(startUrl, tempMessage.length(), tempMessage.substring(startUrl, tempMessage.length()), true);
+			}else if ( isEndStr ) {
+				urlPoint = new UrlPoint(startUrl, sourceMessage.length(), sourceMessage.substring(startUrl, sourceMessage.length()), true);
 				points.add(urlPoint);
 				break;
 			}else {
@@ -71,7 +74,7 @@ public class MiddleUrl {
 	
 	public static void main(String[] args) {
 		
-		String middle = "zazazazazaza fasdasd asdasdasda";
+		String middle = "www.google.com zazazazazaza fasdasd asdasdasda www.google.com tratata";
 		
 		MiddleUrl middleUrl = new MiddleUrl(middle);
 			System.out.println(middleUrl.getPoints());

@@ -236,16 +236,17 @@ public class Chat {
         		  }
         	    }
   		});
-			try {
-				String ip = InetAddress.getLocalHost().getHostAddress();
-				usernameChooser.setText(usersDao.getUser(crypter.encrypt(ip)).getUserName());
-				
-			} catch (UnknownHostException e1) {
-				e1.printStackTrace();
-			} catch(EmptyResultDataAccessException emptyDsException){
-				usernameChooser.setText("");
-			}
 			
+		try {
+			
+			String ip = InetAddress.getLocalHost().getHostAddress();
+			usernameChooser.setText(usersDao.getUser(crypter.encrypt(ip)).getUserName());
+
+		} catch (UnknownHostException uhe) {
+			uhe.printStackTrace();
+		} catch (EmptyResultDataAccessException emptyDsException) {
+			usernameChooser.setText("");
+		}
 		
 		changeColor = new JButton();
 		changeColor.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
