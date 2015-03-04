@@ -595,6 +595,20 @@ public class Chat {
 			}
 			rowCount = currentCntRow;
 		}
+		
+		private String checkUrlValid(String message){
+		
+			String messageUrl = message.trim();
+			boolean urlNotValid = messageUrl.indexOf("www.www") != -1;
+			if(urlNotValid){
+				messageUrl= messageUrl.replaceAll("www.www", "http://www");
+			}else{
+				messageUrl = messageUrl.replaceAll("www.", "http://");
+			}
+			System.out.println(messageUrl);
+			return messageUrl;
+			
+		}
 
 		private void print(String sendTime, String message, Style style) throws BadLocationException, MalformedURLException, IOException {
 			
@@ -606,11 +620,6 @@ public class Chat {
 				
 				String messageUrl = urlPoint.getMessage();
 				messageUrl = messageUrl.trim();
-				if(messageUrl.indexOf("www.www") != -1){
-					messageUrl= messageUrl.replaceAll("www.www", "http://www");
-				}else{
-					messageUrl = messageUrl.replaceAll("www.", "http://");
-				}
 				
 				if(urlPoint.isUrl()){
 					
@@ -621,6 +630,7 @@ public class Chat {
 						doc.insertString(doc.getLength(), "\n",	style);
 						printPicture(sendTime, style, messageUrl, format);
 					}else {
+						messageUrl = checkUrlValid(messageUrl);
 						regularBlue.addAttribute(LINK_ATTRIBUTE, new URLLinkAction(messageUrl));
 						doc.insertString(doc.getLength(), messageUrl + " ", regularBlue);
 					}
