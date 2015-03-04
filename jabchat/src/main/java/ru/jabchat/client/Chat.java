@@ -605,7 +605,6 @@ public class Chat {
 			}else{
 				messageUrl = messageUrl.replaceAll("www.", "http://");
 			}
-			System.out.println(messageUrl);
 			return messageUrl;
 			
 		}
