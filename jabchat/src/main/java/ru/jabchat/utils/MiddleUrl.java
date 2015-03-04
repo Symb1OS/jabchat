@@ -49,7 +49,6 @@ public class MiddleUrl {
 				break;
 			}else {
 				break;
-				
 			}
 		}
 		

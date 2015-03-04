@@ -606,6 +606,12 @@ public class Chat {
 				
 				String messageUrl = urlPoint.getMessage();
 				messageUrl = messageUrl.trim();
+				if(messageUrl.indexOf("www.www") != -1){
+					messageUrl= messageUrl.replaceAll("www.www", "http://www");
+				}else{
+					messageUrl = messageUrl.replaceAll("www.", "http://");
+				}
+				
 				if(urlPoint.isUrl()){
 					
 					int posFormat = messageUrl.lastIndexOf(".");
@@ -688,8 +694,8 @@ public class Chat {
 			
 			Config.setProxy();
 		
-			urlString= urlString.replaceAll("www.www", "http://www");
-			urlString = urlString.replaceAll("www.", "http://");
+			/*urlString= urlString.replaceAll("www.www", "http://www");
+			urlString = urlString.replaceAll("www.", "http://");*/
 			
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 			InputStream inStream = httpConn.getInputStream();
