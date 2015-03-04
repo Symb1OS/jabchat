@@ -153,6 +153,7 @@ public class Chat {
 	private StyleContext sc;
 	private Style system;
 	private Style regularBlue;
+	private Style timeStyle;
 	
 	private Color userColor;
 	
@@ -400,6 +401,9 @@ public class Chat {
         this.regularBlue = sc.addStyle("regularBlue", null);
 		StyleConstants.setForeground(regularBlue, Color.BLUE);
 		StyleConstants.setUnderline(regularBlue, true);
+		
+		this.timeStyle = sc.addStyle("timeStyle", null);
+		StyleConstants.setForeground(timeStyle, Color.RED);
         
         this.doc = new EditorDocument(sc);
         JPanel mainPanel = new JPanel();
@@ -619,7 +623,7 @@ public class Chat {
 			MiddleUrl middleUrl = new MiddleUrl(message);
 			List<UrlPoint> messages = middleUrl.getPoints();
 			
-			doc.insertString(doc.getLength(), sendTime + " - ",	style);
+			doc.insertString(doc.getLength(), sendTime + " - ",	timeStyle);
 			for (UrlPoint urlPoint : messages) {
 				
 				String messageUrl = urlPoint.getMessage();
