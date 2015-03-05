@@ -471,7 +471,7 @@ public class Chat {
         
         southPanel.add(chatPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.EAST);
-        southPanel.setPreferredSize(new Dimension(35,40));
+      //  southPanel.setPreferredSize(new Dimension(35,100));
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
