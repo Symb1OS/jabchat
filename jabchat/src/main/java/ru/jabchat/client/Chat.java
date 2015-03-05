@@ -105,7 +105,7 @@ public class Chat {
 		PICTURE_FORMAT.add(".gif");
 	}
 	
-	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
+	private StringCrypter crypter = new StringCrypter(new byte[]{1,2,5,6,8,9,7,8});
 	
 	private ChatDao chatDao = new ChatDao();
 	private UserDao usersDao = new UserDao();
