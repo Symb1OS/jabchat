@@ -10,7 +10,7 @@ import ru.jabchat.utils.StringCrypter;
 
 public class ChatRowMapper implements RowMapper<ChatModel> {
 
-	private StringCrypter crypter = new StringCrypter(new byte[]{1,4,5,6,8,9,7,8});
+	private StringCrypter crypter = new StringCrypter(new byte[]{1,2,5,6,8,9,7,8});
 	
 	@Override
 	public ChatModel mapRow(ResultSet rs, int i) throws SQLException {
