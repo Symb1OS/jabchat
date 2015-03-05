@@ -623,7 +623,8 @@ public class Chat {
 			MiddleUrl middleUrl = new MiddleUrl(message);
 			List<UrlPoint> messages = middleUrl.getPoints();
 			
-			doc.insertString(doc.getLength(), sendTime + " - ",	timeStyle);
+			doc.insertString(doc.getLength(), sendTime,	timeStyle);
+			doc.insertString(doc.getLength(), " - ", style);
 			for (UrlPoint urlPoint : messages) {
 				
 				String messageUrl = urlPoint.getMessage();
