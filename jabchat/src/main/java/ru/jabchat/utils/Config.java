@@ -36,5 +36,9 @@ public class Config {
 		});
         
 	}
+	
+	public static StringCrypter getInstance(){
+		return new StringCrypter(new byte[]{1,2,5,6,8,9,7,8});
+	}
 
 }

@@ -6,11 +6,12 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import ru.jabchat.server.model.UserModel;
+import ru.jabchat.utils.Config;
 import ru.jabchat.utils.StringCrypter;
 
 public class UserRowMapper implements RowMapper<UserModel> {
 
-	private StringCrypter crypter = new StringCrypter(new byte[]{1,2,5,6,8,9,7,8});
+	private StringCrypter crypter = Config.getInstance();
 	
 	@Override
 	public UserModel mapRow(ResultSet rs, int i) throws SQLException {

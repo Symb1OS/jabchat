@@ -73,7 +73,7 @@ public class MiddleUrl {
 	
 	public static void main(String[] args) {
 		
-		String middle = "www.google.com zazazazazaza fasdasd asdasdasda www.google.com tratata";
+		String middle = "www.google.com мы ведём с собой кота asdasdasda www.google.com tratata";
 		
 		MiddleUrl middleUrl = new MiddleUrl(middle);
 			System.out.println(middleUrl.getPoints());

@@ -105,7 +105,7 @@ public class Chat {
 		PICTURE_FORMAT.add(".gif");
 	}
 	
-	private StringCrypter crypter = new StringCrypter(new byte[]{1,2,5,6,8,9,7,8});
+	private StringCrypter crypter = Config.getInstance();
 	
 	private ChatDao chatDao = new ChatDao();
 	private UserDao usersDao = new UserDao();
@@ -183,13 +183,13 @@ public class Chat {
                 }
               
                 Chat chat = new Chat();
-                chat.preDisplay();
+                chat.loginView();
             }
         });
     }
     
-    public void preDisplay() {
-       
+    public void loginView() {
+    	
     	loginFrame = new JFrame(APPLICATION_NAME);
     
     	Image im = Toolkit.getDefaultToolkit().getImage(APPLICATION_ICON);
@@ -328,7 +328,7 @@ public class Chat {
 		
     }
     
-    private class TextMotionListener extends MouseInputAdapter {
+	private class TextMotionListener extends MouseInputAdapter {
 		public void mouseMoved(MouseEvent e) {
 			Element elem = doc.getCharacterElement(chatBox.viewToModel(e.getPoint()));
 			AttributeSet as = elem.getAttributes();
@@ -418,18 +418,18 @@ public class Chat {
         messageBox.requestFocusInWindow();
     	messageBox.setLineWrap(true);
 		messageBox.setWrapStyleWord(false);
-        messageBox.addKeyListener(new KeyAdapter() {
-      	  public void keyPressed(KeyEvent e) {
-      		  int keyPressed = e.getKeyCode();
-      		  boolean isEnter = (keyPressed == 10);
-      		  boolean needTranslate = (keyPressed == 82) && e.isControlDown();
-      		  if (isEnter){
-      			  sendMessage();
-      		  }else if (needTranslate) {
-      			  String tmp = messageBox.getText();
-				  messageBox.setText(Converter.engToRu(tmp));
+		messageBox.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				int keyPressed = e.getKeyCode();
+				boolean isEnter = (keyPressed == 10);
+				boolean needTranslate = (keyPressed == 82) && e.isControlDown();
+				if (isEnter) {
+					sendMessage();
+				} else if (needTranslate) {
+					String tmp = messageBox.getText();
+					messageBox.setText(Converter.engToRu(tmp));
+				}
 			}
-      	    }
 		});
         
         sendMessage = new JButton();
@@ -471,7 +471,6 @@ public class Chat {
         
         southPanel.add(chatPanel, BorderLayout.CENTER);
         southPanel.add(buttonPanel, BorderLayout.EAST);
-      //  southPanel.setPreferredSize(new Dimension(35,100));
 
         mainPanel.add(BorderLayout.SOUTH, southPanel);
 
@@ -700,7 +699,10 @@ public class Chat {
 			}
 			
 		}
-
+		
+		private void check(){
+			
+		}
 		private void printLink(String sendTime, String message, Style style)
 				throws BadLocationException {
 			doc.insertString(doc.getLength(), sendTime + " - ",	style);
@@ -712,10 +714,6 @@ public class Chat {
 				BadLocationException {
 			
 			Config.setProxy();
-		
-			/*urlString= urlString.replaceAll("www.www", "http://www");
-			urlString = urlString.replaceAll("www.", "http://");*/
-			
 			HttpURLConnection httpConn = (HttpURLConnection) new URL(urlString).openConnection();
 			InputStream inStream = httpConn.getInputStream();
 			ImageIcon imageIcon = getImageIcon(format, inStream);
@@ -1015,6 +1013,7 @@ public class Chat {
     	
     	private String[] getSmileNames() {
     		File listFile = new File(ICONS_PATH + SMILES_PATH);
+    		
     		File exportFiles[] = listFile.listFiles();
     		String[] names = new String[exportFiles.length];
     		for (int i = 0; i < names.length; i++) {

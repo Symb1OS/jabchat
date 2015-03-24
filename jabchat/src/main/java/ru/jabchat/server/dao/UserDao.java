@@ -87,5 +87,5 @@ public class UserDao {
 	public void disconnect(UserModel user){
 		jdbc.update(SET_STATUS, "off",  user.getId() );
 	}
-	
+
 }

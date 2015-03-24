@@ -17,7 +17,6 @@ public class ChatDao {
 	private static final String COUNT_ROWS_LOGIN = "SELECT MAX(ID)  as ID FROM VBR_IFRS.CHAT";
 	private static final String SELECT_LAST	     = "SELECT * FROM VBR_IFRS.CHAT ch  left outer join  VBR_IFRS.CHAT_USERS us on ch.NAME  = us.NAME WHERE (SELECT MAX(ID) FROM VBR_IFRS.CHAT) = ID";
 	private static final String SELECT_ROW 	 	 = "SELECT * FROM VBR_IFRS.CHAT ch  left outer join  VBR_IFRS.CHAT_USERS us on ch.NAME  = us.NAME WHERE ch.ID = (SELECT MAX(ID) FROM VBR_IFRS.CHAT) - ?";
-	
 	private JdbcTemplate jdbc;
 	
 	public ChatDao(){
@@ -53,4 +52,5 @@ public class ChatDao {
 	public ChatModel getMessage(int index){
 		return jdbc.queryForObject(SELECT_ROW,  new Object[]{index}, new ChatRowMapper() );
 	}
+
 }
