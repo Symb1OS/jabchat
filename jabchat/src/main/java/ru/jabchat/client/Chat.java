@@ -700,9 +700,6 @@ public class Chat {
 			
 		}
 		
-		private void check(){
-			
-		}
 		private void printLink(String sendTime, String message, Style style)
 				throws BadLocationException {
 			doc.insertString(doc.getLength(), sendTime + " - ",	style);
